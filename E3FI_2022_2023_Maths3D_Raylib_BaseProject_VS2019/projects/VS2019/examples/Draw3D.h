@@ -141,30 +141,84 @@ void MyDrawDisk(Disk disk, int nSectors = 20, bool drawPolygon = true, bool draw
 
 void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 {
-	int numQuads = 6;
-	if (rlCheckBufferLimit(numQuads)) rlglDraw();
+	// Face 1
+	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
+	quad.ref.Translate({ 0, box.extents.y, 0});
+	MyDrawPolygonQuad(quad);
 
-	rlPushMatrix();
-	//TRANSLATION
-	rlTranslatef(box.ref.origin.x, box.ref.origin.y, box.ref.origin.z);
-	//ROTATION
-	Vector3 vect;
-	float angle;
-	QuaternionToAxisAngle(box.ref.q, &vect, &angle);
-	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
-	//SCALING
-	rlScalef(box.extents.x, box.extents.y, box.extents.z);
-	// END OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
-	rlBegin(RL_TRIANGLES);
-	rlColor4ub(color.r, color.g, color.b, color.a);
-	rlVertex3f(1, 0, 1);
-	rlVertex3f(1, 0, -1);
-	rlVertex3f(-1, 0, -1);
-	rlVertex3f(1, 0, 1);
-	rlVertex3f(-1, 0, -1);
-	rlVertex3f(-1, 0, 1);
-	rlEnd();
+	// Face 2
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+	quad.ref.Translate({ 0, 0, box.extents.z });
+	MyDrawPolygonQuad(quad);
 
-	//EVERY rlPushMatrix method call should be followed by a rlPopMatrix method call
-	rlPopMatrix();
+	// Face 3
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3*PI / 2));
+	quad.ref.Translate({ 0, 0, -box.extents.z });
+	MyDrawPolygonQuad(quad);
+
+	// Face 4
+	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+	quad.ref.Translate({ 0, -box.extents.y, 0});
+	MyDrawPolygonQuad(quad);
+
+	// Face 5
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	quad.ref.Translate({ -box.extents.x, 0, 0 });
+	MyDrawPolygonQuad(quad);
+
+	// Face 6
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
+	quad.ref.Translate({ box.extents.x, 0, 0 });
+	MyDrawPolygonQuad(quad);
+}
+
+void MyDrawWireframeBox(Box box, Color color = LIGHTGRAY)
+{
+	{
+		// Face 1
+		Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
+		quad.ref.Translate({ 0, box.extents.y, 0 });
+		MyDrawWireframeQuad(quad);
+
+		// Face 2
+		quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+		quad.ref.Translate({ 0, 0, box.extents.z });
+		MyDrawWireframeQuad(quad);
+
+		// Face 3
+		quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
+		quad.ref.Translate({ 0, 0, -box.extents.z });
+		MyDrawWireframeQuad(quad);
+
+		// Face 4
+		quad = { box.ref,{box.extents.x, 0, box.extents.z} };
+		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+		quad.ref.Translate({ 0, -box.extents.y, 0 });
+		MyDrawWireframeQuad(quad);
+
+		// Face 5
+		quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+		quad.ref.Translate({ -box.extents.x, 0, 0 });
+		MyDrawWireframeQuad(quad);
+
+		// Face 6
+		quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
+		quad.ref.Translate({ box.extents.x, 0, 0 });
+		MyDrawWireframeQuad(quad);
+	}
+}
+
+void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+{
+	if (drawPolygon) MyDrawPolygonBox(box, polygonColor);
+	if (drawWireframe) MyDrawWireframeBox(box, wireframeColor);
 }

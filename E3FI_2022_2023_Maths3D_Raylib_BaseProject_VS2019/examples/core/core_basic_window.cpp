@@ -178,10 +178,12 @@ int main(int argc, char* argv[])
 				{ 0,1,0 },
 				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,0 }), 0));
 			Quad quad = { ref,{1,0,1} };
-			Box box = { ref, {0, 0, 0} };
-
+			Box box = { ref, {1, 2, 3} };
 			Disk disk = { ref, 4 };
-			MyDrawPolygonBox(box);
+
+			//MyDrawQuad(quad);
+			//MyDrawBox(box);
+			//MyDrawDisk(disk);
 				
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
