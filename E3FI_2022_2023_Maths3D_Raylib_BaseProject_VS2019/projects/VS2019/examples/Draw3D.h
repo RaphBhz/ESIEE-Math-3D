@@ -138,3 +138,33 @@ void MyDrawDisk(Disk disk, int nSectors = 20, bool drawPolygon = true, bool draw
 	if (drawPolygon) MyDrawPolygonDisk(disk, nSectors, polygonColor);
 	if (drawWireframe)MyDrawWireframeDisk(disk, nSectors, wireframeColor);
 }
+
+void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
+{
+	int numQuads = 6;
+	if (rlCheckBufferLimit(numQuads)) rlglDraw();
+
+	rlPushMatrix();
+	//TRANSLATION
+	rlTranslatef(box.ref.origin.x, box.ref.origin.y, box.ref.origin.z);
+	//ROTATION
+	Vector3 vect;
+	float angle;
+	QuaternionToAxisAngle(box.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+	//SCALING
+	rlScalef(box.extents.x, box.extents.y, box.extents.z);
+	// END OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
+	rlBegin(RL_TRIANGLES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+	rlVertex3f(1, 0, 1);
+	rlVertex3f(1, 0, -1);
+	rlVertex3f(-1, 0, -1);
+	rlVertex3f(1, 0, 1);
+	rlVertex3f(-1, 0, -1);
+	rlVertex3f(-1, 0, 1);
+	rlEnd();
+
+	//EVERY rlPushMatrix method call should be followed by a rlPopMatrix method call
+	rlPopMatrix();
+}

@@ -175,12 +175,13 @@ int main(int argc, char* argv[])
 			// DRAWING
 			// QUAD DISPLAY TEST
 			ReferenceFrame ref = ReferenceFrame(
-				{ 0,2,0 },
-				QuaternionFromAxisAngle(Vector3Normalize({ 1,1,1 }), PI / 4));
-			Quad quad = { ref,{3,1,5} };
-			// MyDrawQuad(quad);
+				{ 0,1,0 },
+				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,0 }), 0));
+			Quad quad = { ref,{1,0,1} };
+			Box box = { ref, {0, 0, 0} };
+
 			Disk disk = { ref, 4 };
-			MyDrawDisk(disk, 50);
+			MyDrawPolygonBox(box);
 				
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
