@@ -177,14 +177,13 @@ int main(int argc, char* argv[])
 			ReferenceFrame ref = ReferenceFrame(
 				{ 0,1,0 },
 				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,0 }), 0));
+			
 			Quad quad = { ref,{1,0,1} };
 			Box box = { ref, {1, 2, 3} };
-			Disk disk = { ref, 4 };
-
-			//MyDrawQuad(quad);
-			//MyDrawBox(box);
-			//MyDrawDisk(disk);
-				
+			Disk disk = { ref, 2 };
+			Sphere sphere = { ref, 5};
+			
+			MyDrawShpere(sphere);
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
 			DrawLine3D({ 0 }, { 0,10,0 }, DARKGRAY);

@@ -222,3 +222,52 @@ void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Colo
 	if (drawPolygon) MyDrawPolygonBox(box, polygonColor);
 	if (drawWireframe) MyDrawWireframeBox(box, wireframeColor);
 }
+
+void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color color = LIGHTGRAY) {
+
+	int numVertex = nMeridians * nParallels*2;
+
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
+	// BEGINNING OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
+		// methods should be called in this order: rlTranslatef, rlRotatef & rlScalef
+		// so that transformations occur in the opposite order: scale, then rotation, then translation
+	rlPushMatrix();
+	//TRANSLATION
+	
+
+	rlBegin(RL_TRIANGLES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+	
+
+	
+
+	for (int i = 0; i < nMeridians/2; i++) {
+		for (int j = 0; j < nParallels; j++) {
+			// First Vertex
+			// First Point
+			Spherical sph = { sphere.radius, (2*PI / nParallels) * j, (PI / nMeridians) * i };
+			Vector3 cart = SphericalToCartesian(sph);
+			rlVertex3f(cart.x, cart.y, cart.z);
+
+			// Second Point
+			sph = 
+		}
+		
+
+	}
+	rlEnd();
+	
+	
+	
+
+
+}
+void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color color = DARKGRAY) {
+
+}
+
+
+void MyDrawSphere(Sphere sphere, int nMeridians, int nParallels, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY,Color wireframeColor = DARKGRAY) {
+	if (drawPolygon) MyDrawPolygonSphere(sphere, nMeridians, nParallels,polygonColor);
+	if (drawWireframe) MyDrawWireframeSphere(sphere, nMeridians, nParallels, wireframeColor);
+}
