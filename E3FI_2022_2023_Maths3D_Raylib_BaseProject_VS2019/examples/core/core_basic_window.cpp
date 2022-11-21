@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
 			Disk disk = { ref, 2 };
 			Sphere sphere = { ref, 5};
 			
-			MyDrawShpere(sphere);
+			MyDrawShpere(sphere, 10,10,true);
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
 			DrawLine3D({ 0 }, { 0,10,0 }, DARKGRAY);

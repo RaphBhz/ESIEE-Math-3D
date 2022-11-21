@@ -241,20 +241,48 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 
 	
 
-	for (int i = 0; i < nMeridians/2; i++) {
-		for (int j = 0; j < nParallels; j++) {
-			// First Vertex
-			// First Point
-			Spherical sph = { sphere.radius, (2*PI / nParallels) * j, (PI / nMeridians) * i };
-			Vector3 cart = SphericalToCartesian(sph);
-			rlVertex3f(cart.x, cart.y, cart.z);
+	//for (int i = 0; i < nMeridians/2; i++) {
+	//	for (int j = 0; j < nParallels; j++) {
+	//		// First Vertex
+	//		// First Point
+	//		Spherical sph = { sphere.radius, (2*PI / nParallels) * j, (PI / nMeridians) * i };
+	//		Vector3 cart = SphericalToCartesian(sph);
+	//		rlVertex3f(cart.x, cart.y, cart.z);
 
-			// Second Point
-			sph = 
+	//		// Second Point
+	//		
+	//	}
+	//	
+
+	//}
+	// 
+	// 
+	// regarder le code suivant pour la sphère 
+	/*for (int i = 0; i < (rings + 2); i++)
+	{
+		for (int j = 0; j < slices; j++)
+		{
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * (j * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * (j * 360 / slices)));
+
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
+			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
+				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
+				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
 		}
-		
-
-	}
+	}*/
 	rlEnd();
 	
 	
@@ -270,4 +298,24 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 void MyDrawSphere(Sphere sphere, int nMeridians, int nParallels, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY,Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonSphere(sphere, nMeridians, nParallels,polygonColor);
 	if (drawWireframe) MyDrawWireframeSphere(sphere, nMeridians, nParallels, wireframeColor);
+}
+
+// cylindre
+
+void MyDrawCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
+
+}
+
+void MyDrawPolygonCylinderPortion(Cylinder cylinder, int nSectors, float
+	startTheta, float endTheta, Color color = LIGHTGRAY) {
+
+}
+void MyDrawWireframeCylinderPortion(Cylinder cylinder, int nSectors, float
+	startTheta, float endTheta, Color color = LIGHTGRAY) {
+
+}
+void MyDrawCylinderPortion(Cylinder cylinder, int nSectors, float startTheta, float
+	endTheta, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor =
+	LIGHTGRAY, Color wireframeColor = DARKGRAY) {
+
 }
