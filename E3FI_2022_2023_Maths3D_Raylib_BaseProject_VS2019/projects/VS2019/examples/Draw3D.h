@@ -226,26 +226,36 @@ void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Colo
 
 void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color color = LIGHTGRAY) {
 
+	// Checking GC cache limit
 	int numVertex = nMeridians * nParallels * 2;
-
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
-	// BEGINNING OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
-		// methods should be called in this order: rlTranslatef, rlRotatef & rlScalef
-		// so that transformations occur in the opposite order: scale, then rotation, then translation
+
 	rlPushMatrix();
 
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
+	QuaternionToAxisAngle(sphere.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Drawing parameters
 	rlBegin(RL_TRIANGLES);
 	rlColor4ub(color.r, color.g, color.b, color.a);
 
-	float deltaParallels = (2 * PI) / nParallels;
-	float deltaMeridians = (2 * PI) / nMeridians;
+	// Sphere Parallels and Meridians
+	float deltaParallels = (2*PI) / nParallels;
+	float deltaMeridians = PI / nMeridians;
 	
+	// Drawing the sphere
 	// We will draw two halves of the sphere at the same time to reduce time complexity
-	for (int i = 0; i < nMeridians / 2; i++) {
-		for (int j = 0; j < nParallels; j++) {
-			Spherical sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
-			Spherical sph2 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * i };
-			Spherical sph3 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * (i+1) };
+	for (int i = 0; i < nParallels / 2; i++) {
+		for (int j = 0; j < nMeridians; j++) {
+			// First vertex of the first half
+			Spherical sph1 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
+			Spherical sph2 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * i };
+			Spherical sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
@@ -255,13 +265,10 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 			rlVertex3f(p2.x, p2.y, p2.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			rlVertex3f(p1.x, p1.y, -p1.z);
-			rlVertex3f(p2.x, p2.y, -p2.z);
-			rlVertex3f(p3.x, p3.y, -p3.z);
-
-			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
-			sph2 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * (i+1) };
-			sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * (i + 1) };
+			// First vertex of the second half
+			sph1 = { sph1.rho, sph1.theta, sph1.phi + PI/2 };
+			sph2 = { sph2.rho, sph2.theta, sph2.phi + PI/2 };
+			sph3 = { sph3.rho, sph3.theta, sph3.phi + PI/2 };
 
 			p1 = SphericalToCartesian(sph1);
 			p2 = SphericalToCartesian(sph2);
@@ -271,9 +278,31 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 			rlVertex3f(p2.x, p2.y, p2.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			rlVertex3f(p1.x, p1.y, -p1.z);
-			rlVertex3f(p2.x, p2.y, -p2.z);
-			rlVertex3f(p3.x, p3.y, -p3.z);
+			// Second vertex of the first half
+			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			sph2 = { sphere.radius, deltaParallels * j, deltaMeridians * (i+1) };
+			sph3 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * (i+1) };
+
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+
+			// Second vertex of the second half
+			sph1 = { sph1.rho, sph1.theta, sph1.phi + PI/2 };
+			sph2 = { sph2.rho, sph2.theta, sph2.phi + PI/2 };
+			sph3 = { sph3.rho, sph3.theta, sph3.phi + PI/2 };
+
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
 		}
 	}
 
@@ -281,26 +310,37 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 	rlPopMatrix();
 }
 void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color color = DARKGRAY) {
-	int numVertex = nMeridians * nParallels * 2;
 
+	// Checking GC cache limit
+	int numVertex = nMeridians * nParallels * 2;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
-	// BEGINNING OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
-		// methods should be called in this order: rlTranslatef, rlRotatef & rlScalef
-		// so that transformations occur in the opposite order: scale, then rotation, then translation
+
 	rlPushMatrix();
 
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
+	QuaternionToAxisAngle(sphere.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Drawing parameters
 	rlBegin(RL_LINES);
 	rlColor4ub(color.r, color.g, color.b, color.a);
 
-	float deltaParallels = (2 * PI) / nParallels;
-	float deltaMeridians = (2 * PI) / nMeridians;
+	// Sphere Parallels and Meridians
+	float deltaParallels = (2*PI) / nParallels;
+	float deltaMeridians = PI / nMeridians;
 
-	// We will draw two halves of the sphere at the same time to reduce time complexity
-	for (int i = 0; i < nMeridians / 2; i++) {
-		for (int j = 0; j < nParallels - 1; j++) {
-			Spherical sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+	// Drawing the sphere
+// We will draw two halves of the sphere at the same time to reduce time complexity
+	for (int i = 0; i < nParallels / 2; i++) {
+		for (int j = 0; j < nMeridians; j++) {
+			// First vertex of the first half
+			Spherical sph1 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
 			Spherical sph2 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * i };
-			Spherical sph3 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
+			Spherical sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
@@ -308,15 +348,15 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 
 			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			rlVertex3f(p1.x, p1.y, -p1.z);
-			rlVertex3f(p2.x, p2.y, -p2.z);
-			rlVertex3f(p3.x, p3.y, -p3.z);
-
-			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
-			sph2 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
-			sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * (i + 1) };
+			// First vertex of the second half
+			sph1 = { sph1.rho, sph1.theta, sph1.phi + PI / 2 };
+			sph2 = { sph2.rho, sph2.theta, sph2.phi + PI / 2 };
+			sph3 = { sph3.rho, sph3.theta, sph3.phi + PI / 2 };
 
 			p1 = SphericalToCartesian(sph1);
 			p2 = SphericalToCartesian(sph2);
@@ -324,11 +364,42 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 
 			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			rlVertex3f(p1.x, p1.y, -p1.z);
-			rlVertex3f(p2.x, p2.y, -p2.z);
-			rlVertex3f(p3.x, p3.y, -p3.z);
+			// Second vertex of the first half
+			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			sph2 = { sphere.radius, deltaParallels * j, deltaMeridians * (i + 1) };
+			sph3 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
+
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+
+			// Second vertex of the second half
+			sph1 = { sph1.rho, sph1.theta, sph1.phi + PI / 2 };
+			sph2 = { sph2.rho, sph2.theta, sph2.phi + PI / 2 };
+			sph3 = { sph3.rho, sph3.theta, sph3.phi + PI / 2 };
+
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
 		}
 	}
 
@@ -337,7 +408,7 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 }
 
 
-void MyDrawSphere(Sphere sphere, int nMeridians, int nParallels, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
+void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonSphere(sphere, nMeridians, nParallels, polygonColor);
 	if (drawWireframe) MyDrawWireframeSphere(sphere, nMeridians, nParallels, wireframeColor);
 }
