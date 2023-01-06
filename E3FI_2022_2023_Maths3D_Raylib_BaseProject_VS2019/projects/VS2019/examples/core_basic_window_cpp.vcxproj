@@ -327,6 +327,7 @@
   <ItemGroup>
     <ClInclude Include="Draw3D.h" />
     <ClInclude Include="My3DPrimitives.h" />
+    <ClInclude Include="Referentials.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

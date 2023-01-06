@@ -1,5 +1,6 @@
 #pragma once
 #include "My3DPrimitives.h"
+#include "Referentials.h"
 
 //QUAD
 void MyDrawPolygonQuad(Quad quad, Color color = LIGHTGRAY)
@@ -232,66 +233,107 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 		// methods should be called in this order: rlTranslatef, rlRotatef & rlScalef
 		// so that transformations occur in the opposite order: scale, then rotation, then translation
 	rlPushMatrix();
-	//TRANSLATION
-	
 
 	rlBegin(RL_TRIANGLES);
 	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	float deltaParallels = (2 * PI) / nParallels;
+	float deltaMeridians = (2 * PI) / nMeridians;
 	
+	// We will draw two halves of the sphere at the same time to reduce time complexity
+	for (int i = 0; i < nMeridians / 2; i++) {
+		for (int j = 0; j < nParallels; j++) {
+			Spherical sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			Spherical sph2 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * i };
+			Spherical sph3 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * (i+1) };
 
-	
+			Vector3 p1 = SphericalToCartesian(sph1);
+			Vector3 p2 = SphericalToCartesian(sph2);
+			Vector3 p3 = SphericalToCartesian(sph3);
 
-	//for (int i = 0; i < nMeridians/2; i++) {
-	//	for (int j = 0; j < nParallels; j++) {
-	//		// First Vertex
-	//		// First Point
-	//		Spherical sph = { sphere.radius, (2*PI / nParallels) * j, (PI / nMeridians) * i };
-	//		Vector3 cart = SphericalToCartesian(sph);
-	//		rlVertex3f(cart.x, cart.y, cart.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
 
-	//		// Second Point
-	//		
-	//	}
-	//	
+			rlVertex3f(p1.x, p1.y, -p1.z);
+			rlVertex3f(p2.x, p2.y, -p2.z);
+			rlVertex3f(p3.x, p3.y, -p3.z);
 
-	//}
-	// 
-	// 
-	// regarder le code suivant pour la sphère 
-	/*for (int i = 0; i < (rings + 2); i++)
-	{
-		for (int j = 0; j < slices; j++)
-		{
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * (j * 360 / slices)));
+			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			sph2 = { sphere.radius, deltaParallels * (j+1), deltaMeridians * (i+1) };
+			sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * (i + 1) };
 
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * sinf(DEG2RAD * (j * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * i)),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * i)) * cosf(DEG2RAD * (j * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
-			rlVertex3f(cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * sinf(DEG2RAD * ((j + 1) * 360 / slices)),
-				sinf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))),
-				cosf(DEG2RAD * (270 + (180 / (rings + 1)) * (i + 1))) * cosf(DEG2RAD * ((j + 1) * 360 / slices)));
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+
+			rlVertex3f(p1.x, p1.y, -p1.z);
+			rlVertex3f(p2.x, p2.y, -p2.z);
+			rlVertex3f(p3.x, p3.y, -p3.z);
 		}
-	}*/
+	}
+
 	rlEnd();
-	
-	
-	
-
-
+	rlPopMatrix();
 }
 void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color color = DARKGRAY) {
+	int numVertex = nMeridians * nParallels * 2;
 
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
+	// BEGINNING OF SPACE TRANSFORMATION INDUCED BY THE LOCAL REFERENCE FRAME
+		// methods should be called in this order: rlTranslatef, rlRotatef & rlScalef
+		// so that transformations occur in the opposite order: scale, then rotation, then translation
+	rlPushMatrix();
+
+	rlBegin(RL_LINES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	float deltaParallels = (2 * PI) / nParallels;
+	float deltaMeridians = (2 * PI) / nMeridians;
+
+	// We will draw two halves of the sphere at the same time to reduce time complexity
+	for (int i = 0; i < nMeridians / 2; i++) {
+		for (int j = 0; j < nParallels - 1; j++) {
+			Spherical sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			Spherical sph2 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * i };
+			Spherical sph3 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
+
+			Vector3 p1 = SphericalToCartesian(sph1);
+			Vector3 p2 = SphericalToCartesian(sph2);
+			Vector3 p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+
+			rlVertex3f(p1.x, p1.y, -p1.z);
+			rlVertex3f(p2.x, p2.y, -p2.z);
+			rlVertex3f(p3.x, p3.y, -p3.z);
+
+			sph1 = { sphere.radius, deltaParallels * j, deltaMeridians * i };
+			sph2 = { sphere.radius, deltaParallels * (j + 1), deltaMeridians * (i + 1) };
+			sph3 = { sphere.radius, deltaParallels * j, deltaMeridians * (i + 1) };
+
+			p1 = SphericalToCartesian(sph1);
+			p2 = SphericalToCartesian(sph2);
+			p3 = SphericalToCartesian(sph3);
+
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(p3.x, p3.y, p3.z);
+
+			rlVertex3f(p1.x, p1.y, -p1.z);
+			rlVertex3f(p2.x, p2.y, -p2.z);
+			rlVertex3f(p3.x, p3.y, -p3.z);
+		}
+	}
+
+	rlEnd();
+	rlPopMatrix();
 }
 
 
