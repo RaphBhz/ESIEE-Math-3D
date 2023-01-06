@@ -120,6 +120,10 @@ int main(int argc, char* argv[])
 			Sphere sphere = { ref, 2};
 			
 			MyDrawSphere(sphere, 10, 10, true);
+			Sphere sphere = { ref, 5};
+			Cylinder cylinder = { ref,10,30 };
+
+			MyDrawCylinder(cylinder, 10, true, true, true);
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
 			DrawLine3D({ 0 }, { 0,10,0 }, DARKGRAY);
