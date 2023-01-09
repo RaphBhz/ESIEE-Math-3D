@@ -95,9 +95,15 @@ void MyDrawPolygonDisk(Disk disk, int nSectors, Color color = LIGHTGRAY)
 	float deltaAngle = 2 * PI / nSectors;
 
 	for (int i = 0; i < nSectors; i++) {
+		Cylindrical cyl1 = { 1, deltaAngle * i, 0 };
+		Cylindrical cyl2 = { 1, deltaAngle * (i + 1), 0 };
+
+		Vector3 p1 = CylindricalToCartesian(cyl1);
+		Vector3 p2 = CylindricalToCartesian(cyl2);
+
 		rlVertex3f(0, 0, 0);
-		rlVertex3f(sinf(i * deltaAngle), 0, cosf(i * deltaAngle));
-		rlVertex3f(sinf((i + 1) * deltaAngle), 0, cosf((i + 1) * deltaAngle));
+		rlVertex3f(p1.x, p1.y, p1.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
 	}
 
 	rlEnd();
@@ -109,7 +115,7 @@ void MyDrawPolygonDisk(Disk disk, int nSectors, Color color = LIGHTGRAY)
 void MyDrawWireframeDisk(Disk disk, int nSectors, Color color = DARKGRAY)
 {
 	// Verifying the chache available space
-	int numVertex = nSectors * 3;
+	int numVertex = nSectors * 4;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	// Translating space
@@ -129,10 +135,16 @@ void MyDrawWireframeDisk(Disk disk, int nSectors, Color color = DARKGRAY)
 	float deltaAngle = 2 * PI / nSectors;
 
 	for (int i = 0; i < nSectors; i++) {
+		Cylindrical cyl1 = { 1, deltaAngle * i, 0 };
+		Cylindrical cyl2 = { 1, deltaAngle * (i + 1), 0 };
+
+		Vector3 p1 = CylindricalToCartesian(cyl1);
+		Vector3 p2 = CylindricalToCartesian(cyl2);
+
 		rlVertex3f(0, 0, 0);
-		rlVertex3f(sinf(i * deltaAngle), 0, cosf(i * deltaAngle));
-		rlVertex3f(sinf(i * deltaAngle), 0, cosf(i * deltaAngle));
-		rlVertex3f(sinf((i + 1) * deltaAngle), 0, cosf((i + 1) * deltaAngle));
+		rlVertex3f(p1.x, p1.y, p1.z);
+		rlVertex3f(p1.x, p1.y, p1.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
 	}
 
 	rlEnd();
@@ -348,7 +360,6 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 	rlEnd();
 	rlPopMatrix();
 }
-
 
 void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonSphere(sphere, nMeridians, nParallels, polygonColor);
