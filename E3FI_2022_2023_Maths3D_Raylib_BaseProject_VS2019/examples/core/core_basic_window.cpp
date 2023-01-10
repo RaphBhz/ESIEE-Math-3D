@@ -125,9 +125,9 @@ int main(int argc, char* argv[])
 			// MyDrawBox(box);
 			// MyDrawDisk(disk);
 			// MyDrawSphere(sphere, 50, 50);
-			// MyDrawCylinder(cylinder, 50);
+			MyDrawCylinder(cylinder, 50, true);
 			// MyDrawSphere(sphere, 40, 40, 0, PI, 0, PI / 2);
-			MyDrawCapsule(capsule);
+			// MyDrawCapsule(capsule);
 
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid

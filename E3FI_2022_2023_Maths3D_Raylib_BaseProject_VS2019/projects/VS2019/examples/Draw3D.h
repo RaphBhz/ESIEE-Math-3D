@@ -295,7 +295,6 @@ void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Colo
 
 // SPHERE
 
-
 void MyDrawPolygonSpherePortion(Sphere sphere, int nMeridians, int nParallels, float startTheta, float endTheta, float startPhi, float endPhi, Color color = LIGHTGRAY)
 {
 	// Angular range of the sphere portion
@@ -467,6 +466,16 @@ void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fals
 		rlVertex3f(p4.x, p4.y, p4.z);
 		rlVertex3f(p2.x, p2.y, p2.z);
 		rlVertex3f(p1.x, p1.y, p1.z);
+
+		if (drawCaps) {
+			rlVertex3f(p4.x, p4.y, p4.z);
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(0, cylinder.halfHeight, 0);
+
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(0, -cylinder.halfHeight, 0);
+		}
 	}
 
 	rlEnd();
@@ -513,6 +522,18 @@ void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fa
 		rlVertex3f(p4.x, p4.y, p4.z);
 		rlVertex3f(p4.x, p4.y, p4.z);
 		rlVertex3f(p1.x, p1.y, p1.z);
+
+		if (drawCaps) {
+			rlVertex3f(p4.x, p4.y, p4.z);
+			rlVertex3f(0, cylinder.halfHeight, 0);
+			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(0, cylinder.halfHeight, 0);
+
+			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(0, -cylinder.halfHeight, 0);
+			rlVertex3f(p2.x, p2.y, p2.z);
+			rlVertex3f(0, -cylinder.halfHeight, 0);
+		}
 	}
 
 	rlEnd();
