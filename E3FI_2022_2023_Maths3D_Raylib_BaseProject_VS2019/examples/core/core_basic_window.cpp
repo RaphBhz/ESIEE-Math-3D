@@ -118,13 +118,13 @@ int main(int argc, char* argv[])
 			Box box = { ref, {1, 2, 3} };
 			Disk disk = { ref, 2 };
 			Sphere sphere = { ref, 4 };
-			Cylinder cylinder = { ref,10,30 };
+			Cylinder cylinder = { ref, 3, 3 };
 
 			// MyDrawQuad(quad);
 			// MyDrawBox(box);
-			MyDrawDisk(disk);
+			// MyDrawDisk(disk);
 			// MyDrawSphere(sphere, 50, 50);
-			// MyDrawCylinder(cylinder);
+			MyDrawCylinder(cylinder, 50);
 
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid

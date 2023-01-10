@@ -273,26 +273,20 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 			Spherical sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
 			Spherical sph2 = { sphere.radius, deltaMeridian * j,  deltaParalel * (i + 1) };
 			Spherical sph3 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * (i + 1) };
+			Spherical sph4 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * i };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
 			Vector3 p3 = SphericalToCartesian(sph3);
+			Vector3 p4 = SphericalToCartesian(sph4);
 
 			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p2.x, p2.y, p2.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
-			sph2 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * (i + 1) };
-			sph3 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * i };
-
-			p1 = SphericalToCartesian(sph1);
-			p2 = SphericalToCartesian(sph2);
-			p3 = SphericalToCartesian(sph3);
-
 			rlVertex3f(p1.x, p1.y, p1.z);
-			rlVertex3f(p2.x, p2.y, p2.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
+			rlVertex3f(p4.x, p4.y, p4.z);
 		}
 	}
 
@@ -330,10 +324,12 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 			Spherical sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
 			Spherical sph2 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * (i+1) };
 			Spherical sph3 = { sphere.radius, deltaMeridian * j,  deltaParalel * (i+1) };
+			Spherical sph4 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * i };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
 			Vector3 p3 = SphericalToCartesian(sph3);
+			Vector3 p4 = SphericalToCartesian(sph4);
 
 			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p2.x, p2.y, p2.z);
@@ -342,18 +338,10 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 			rlVertex3f(p1.x, p1.y, p1.z);
 			rlVertex3f(p3.x, p3.y, p3.z);
 
-			sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
-			sph2 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * i };
-			sph3 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * (i+1) };
-
-			p1 = SphericalToCartesian(sph1);
-			p2 = SphericalToCartesian(sph2);
-			p3 = SphericalToCartesian(sph3);
-
 			rlVertex3f(p1.x, p1.y, p1.z);
+			rlVertex3f(p4.x, p4.y, p4.z);
+			rlVertex3f(p4.x, p4.y, p4.z);
 			rlVertex3f(p2.x, p2.y, p2.z);
-			rlVertex3f(p2.x, p2.y, p2.z);
-			rlVertex3f(p3.x, p3.y, p3.z);
 		}
 	}
 
@@ -368,28 +356,97 @@ void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool 
 
 // CYLINDER 
 void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = LIGHTGRAY) {
-	
-	for (float i = 0;i <= nSectors;i++) {
-		Quad quad = { cylinder.ref,{1,1,1} };
-		
-		// rotation perpendiculaire au sol
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-		
-		quad.ref.Translate({ i*2, 0, 0 });
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), ((4 * PI) / (2 * nSectors))*i));
-		
-		MyDrawPolygonQuad(quad);
-		MyDrawWireframeQuad(quad);
+	// Checking GC cache limit
+	int numVertex = nSectors * 6;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
+
+	rlPushMatrix();
+
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(cylinder.ref.origin.x, cylinder.ref.origin.y, cylinder.ref.origin.z);
+	QuaternionToAxisAngle(cylinder.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Parameters for drawing
+	rlBegin(RL_TRIANGLES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	float deltaAngle = 2 * PI / nSectors;
+
+	for (int i = 0;i < nSectors;i++) {
+		Cylindrical cyl1 = { cylinder.radius, deltaAngle * (i+1), cylinder.halfHeight };
+		Cylindrical cyl2 = { cylinder.radius, deltaAngle * i, -cylinder.halfHeight};
+		Cylindrical cyl3 = { cylinder.radius, deltaAngle * (i+1), -cylinder.halfHeight };
+		Cylindrical cyl4 = { cylinder.radius, deltaAngle * i, cylinder.halfHeight };
+
+		Vector3 p1 = CylindricalToCartesian(cyl1);
+		Vector3 p2 = CylindricalToCartesian(cyl2);
+		Vector3 p3 = CylindricalToCartesian(cyl3);
+		Vector3 p4 = CylindricalToCartesian(cyl4);
+
+		rlVertex3f(p1.x, p1.y, p1.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
+		rlVertex3f(p3.x, p3.y, p3.z);
+
+		rlVertex3f(p4.x, p4.y, p4.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
+		rlVertex3f(p1.x, p1.y, p1.z);
 	}
-	
-	
+
+	rlEnd();
+	rlPopMatrix();
 }
 
 void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = LIGHTGRAY) {
+	// Checking GC cache limit
+	int numVertex = nSectors * 4;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
+	rlPushMatrix();
+
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(cylinder.ref.origin.x, cylinder.ref.origin.y, cylinder.ref.origin.z);
+	QuaternionToAxisAngle(cylinder.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Parameters for drawing
+	rlBegin(RL_LINES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	float deltaAngle = 2 * PI / nSectors;
+
+	for (int i = 0; i < nSectors; i++) {
+		Cylindrical cyl1 = { cylinder.radius, deltaAngle * i, cylinder.halfHeight };
+		Cylindrical cyl2 = { cylinder.radius, deltaAngle * i, -cylinder.halfHeight };
+		Cylindrical cyl3 = { cylinder.radius, deltaAngle * (i + 1), -cylinder.halfHeight };
+		Cylindrical cyl4 = { cylinder.radius, deltaAngle * (i + 1), cylinder.halfHeight };
+
+		Vector3 p1 = CylindricalToCartesian(cyl1);
+		Vector3 p2 = CylindricalToCartesian(cyl2);
+		Vector3 p3 = CylindricalToCartesian(cyl3);
+		Vector3 p4 = CylindricalToCartesian(cyl4);
+
+		rlVertex3f(p1.x, p1.y, p1.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
+		rlVertex3f(p2.x, p2.y, p2.z);
+		rlVertex3f(p3.x, p3.y, p3.z);
+		rlVertex3f(p3.x, p3.y, p3.z);
+		rlVertex3f(p4.x, p4.y, p4.z);
+		rlVertex3f(p4.x, p4.y, p4.z);
+		rlVertex3f(p1.x, p1.y, p1.z);
+	}
+
+	rlEnd();
+	rlPopMatrix();
 }
 
-void MyDrawCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
+void MyDrawCylinder(Cylinder cylinder, int nSectors = 10, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonCylinder(cylinder, nSectors, drawCaps, polygonColor);
 	if (drawWireframe) MyDrawWireframeCylinder(cylinder, nSectors, drawCaps, wireframeColor);
 }
