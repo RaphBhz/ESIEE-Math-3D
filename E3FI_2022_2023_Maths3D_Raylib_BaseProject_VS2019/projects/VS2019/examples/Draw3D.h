@@ -475,7 +475,7 @@ void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fals
 
 void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = DARKGRAY) {
 	// Checking GC cache limit
-	int numVertex = nSectors * 4;
+	int numVertex = nSectors * 8;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	rlPushMatrix();
@@ -527,60 +527,32 @@ void MyDrawCylinder(Cylinder cylinder, int nSectors = 10, bool drawCaps = false,
 // CAPSULE
 void MyDrawPolygonCapsule(Capsule capsule, int nSectors, int nParallels, Color color = LIGHTGRAY)
 {
-	// Checking GC cache limit
-	int numVertex = nSectors * 6;
-	if (rlCheckBufferLimit(numVertex)) rlglDraw();
-
-	rlPushMatrix();
-
-	// Adapting Space
-	Vector3 vect;
-	float angle;
-
-	rlTranslatef(capsule.ref.origin.x, capsule.ref.origin.y, capsule.ref.origin.z);
-	QuaternionToAxisAngle(capsule.ref.q, &vect, &angle);
-	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
-
-	// Parameters for drawing
-	rlBegin(RL_TRIANGLES);
-	rlColor4ub(color.r, color.g, color.b, color.a);
-
 	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
-	MyDrawPolygonCylinder(cylinder, nSectors);
+	MyDrawPolygonCylinder(cylinder, nSectors, false, color);
 
-	rlEnd();
-	rlPopMatrix();
+	Sphere sphere = { capsule.ref, capsule.radius };
+	sphere.ref.Translate({ 0, capsule.halfHeight, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nParallels, 0, 2*PI, 0, PI/2, color);
+	
+	sphere.ref.Translate({ 0, -(capsule.halfHeight*2), 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nParallels, 0, 2 * PI, PI/2, PI, color);
 }
 
 void MyDrawWireframeCapsule(Capsule capsule, int nSectors, int nParallels, Color color = DARKGRAY)
 {
-	// Checking GC cache limit
-	int numVertex = nSectors * 6;
-	if (rlCheckBufferLimit(numVertex)) rlglDraw();
-
-	rlPushMatrix();
-
-	// Adapting Space
-	Vector3 vect;
-	float angle;
-
-	rlTranslatef(capsule.ref.origin.x, capsule.ref.origin.y, capsule.ref.origin.z);
-	QuaternionToAxisAngle(capsule.ref.q, &vect, &angle);
-	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
-
-	// Parameters for drawing
-	rlBegin(RL_LINES);
-	rlColor4ub(color.r, color.g, color.b, color.a);
-
 	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
-	MyDrawWireframeCylinder(cylinder, nSectors);
+	MyDrawWireframeCylinder(cylinder, nSectors, false, color);
 
-	rlEnd();
-	rlPopMatrix();
+	Sphere sphere = { capsule.ref, capsule.radius };
+	sphere.ref.Translate({ 0, capsule.halfHeight, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nParallels, 0, 2 * PI, 0, PI / 2, color);
+
+	sphere.ref.Translate({ 0, -(capsule.halfHeight * 2), 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nParallels, 0, 2 * PI, PI / 2, PI, color);
 }
 
 void MyDrawCapsule(Capsule capsule, int nSectors = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
 {
 	if (drawPolygon) MyDrawPolygonCapsule(capsule, nSectors, nParallels, polygonColor);
-	if (drawWireframe) MyDrawWireframeCapsule(capsule, nSectors, nParallels, polygonColor);
+	if (drawWireframe) MyDrawWireframeCapsule(capsule, nSectors, nParallels, wireframeColor);
 }
