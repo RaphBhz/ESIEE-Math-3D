@@ -35,7 +35,7 @@ void MyDrawPolygonQuad(Quad quad, Color color = LIGHTGRAY)
 	rlPopMatrix();
 }
 
-void MyDrawWireframeQuad(Quad quad, Color color = DARKGRAY)
+void MyDrawWireframeQuad(Quad quad, Color color = LIGHTGRAY)
 {
 	int numVertex = 10;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
@@ -112,7 +112,7 @@ void MyDrawPolygonDisk(Disk disk, int nSectors, Color color = LIGHTGRAY)
 	rlPopMatrix();
 }
 
-void MyDrawWireframeDisk(Disk disk, int nSectors, Color color = DARKGRAY)
+void MyDrawWireframeDisk(Disk disk, int nSectors, Color color = LIGHTGRAY)
 {
 	// Verifying the chache available space
 	int numVertex = nSectors * 4;
@@ -236,7 +236,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlPopMatrix();
 }
 
-void MyDrawWireframeBox(Box box, Color color = DARKGRAY)
+void MyDrawWireframeBox(Box box, Color color = LIGHTGRAY)
 {
 	// Checking GC cache limit
 	int numVertex = 24;
@@ -294,7 +294,6 @@ void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Colo
 }
 
 // SPHERE
-
 void MyDrawPolygonSpherePortion(Sphere sphere, int nMeridians, int nParallels, float startTheta, float endTheta, float startPhi, float endPhi, Color color = LIGHTGRAY)
 {
 	// Angular range of the sphere portion
@@ -427,9 +426,18 @@ void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool 
 }
 
 // CYLINDER 
-void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = LIGHTGRAY) {
+void MyDrawPolygonCylinderPortion(Cylinder cylinder, int nSectors, float startTheta, float endTheta, bool drawCaps, Color color = LIGHTGRAY)
+{
+	// Angular range of the cylinder portion
+	float deltaTheta = endTheta - startTheta;
+
+	// Coefficient of the drawn cylinder compared to a full cylinder
+	float drawCoeff = deltaTheta / (2 * PI);
+
 	// Checking GC cache limit
 	int numVertex = nSectors * 6;
+	if (drawCaps) numVertex += nSectors * 6;
+	numVertex = (int)(numVertex * drawCoeff);
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	rlPushMatrix();
@@ -448,11 +456,11 @@ void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fals
 
 	float deltaAngle = 2 * PI / nSectors;
 
-	for (int i = 0;i < nSectors;i++) {
-		Cylindrical cyl1 = { cylinder.radius, deltaAngle * (i+1), cylinder.halfHeight };
-		Cylindrical cyl2 = { cylinder.radius, deltaAngle * i, -cylinder.halfHeight};
-		Cylindrical cyl3 = { cylinder.radius, deltaAngle * (i+1), -cylinder.halfHeight };
-		Cylindrical cyl4 = { cylinder.radius, deltaAngle * i, cylinder.halfHeight };
+	for (float theta = startTheta; theta < endTheta; theta += deltaAngle) {
+		Cylindrical cyl1 = { cylinder.radius, theta + deltaAngle, cylinder.halfHeight };
+		Cylindrical cyl2 = { cylinder.radius, theta, -cylinder.halfHeight };
+		Cylindrical cyl3 = { cylinder.radius, theta + deltaAngle, -cylinder.halfHeight };
+		Cylindrical cyl4 = { cylinder.radius, theta, cylinder.halfHeight };
 
 		Vector3 p1 = CylindricalToCartesian(cyl1);
 		Vector3 p2 = CylindricalToCartesian(cyl2);
@@ -482,9 +490,18 @@ void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fals
 	rlPopMatrix();
 }
 
-void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = DARKGRAY) {
+void MyDrawWireframeCylinderPortion(Cylinder cylinder, int nSectors, float startTheta, float endTheta, bool drawCaps, Color color = LIGHTGRAY)
+{
+	// Angular range of the cylinder portion
+	float deltaTheta = endTheta - startTheta;
+
+	// Coefficient of the drawn cylinder compared to a full cylinder
+	float drawCoeff = deltaTheta / (2*PI);
+
 	// Checking GC cache limit
 	int numVertex = nSectors * 8;
+	if (drawCaps) numVertex += nSectors * 8;
+	numVertex = (int)(numVertex * drawCoeff);
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	rlPushMatrix();
@@ -503,11 +520,11 @@ void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fa
 
 	float deltaAngle = 2 * PI / nSectors;
 
-	for (int i = 0; i < nSectors; i++) {
-		Cylindrical cyl1 = { cylinder.radius, deltaAngle * i, cylinder.halfHeight };
-		Cylindrical cyl2 = { cylinder.radius, deltaAngle * i, -cylinder.halfHeight };
-		Cylindrical cyl3 = { cylinder.radius, deltaAngle * (i + 1), -cylinder.halfHeight };
-		Cylindrical cyl4 = { cylinder.radius, deltaAngle * (i + 1), cylinder.halfHeight };
+	for (float theta = startTheta; theta < endTheta; theta += deltaAngle) {
+		Cylindrical cyl1 = { cylinder.radius, theta, cylinder.halfHeight };
+		Cylindrical cyl2 = { cylinder.radius, theta, -cylinder.halfHeight };
+		Cylindrical cyl3 = { cylinder.radius, theta + deltaAngle, -cylinder.halfHeight };
+		Cylindrical cyl4 = { cylinder.radius, theta + deltaAngle, cylinder.halfHeight };
 
 		Vector3 p1 = CylindricalToCartesian(cyl1);
 		Vector3 p2 = CylindricalToCartesian(cyl2);
@@ -540,16 +557,22 @@ void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fa
 	rlPopMatrix();
 }
 
+void MyDrawCylinderPortion(Cylinder cylinder, int nSectors, float startTheta, float endTheta, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+{
+	if (drawPolygon) MyDrawPolygonCylinderPortion(cylinder, nSectors, startTheta, endTheta, drawCaps, polygonColor);
+	if (drawWireframe) MyDrawWireframeCylinderPortion(cylinder, nSectors, startTheta, endTheta, drawCaps, wireframeColor);
+}
+
 void MyDrawCylinder(Cylinder cylinder, int nSectors = 10, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
-	if (drawPolygon) MyDrawPolygonCylinder(cylinder, nSectors, drawCaps, polygonColor);
-	if (drawWireframe) MyDrawWireframeCylinder(cylinder, nSectors, drawCaps, wireframeColor);
+	if (drawPolygon) MyDrawPolygonCylinderPortion(cylinder, nSectors, 0, 2*PI, drawCaps, polygonColor);
+	if (drawWireframe) MyDrawWireframeCylinderPortion(cylinder, nSectors, 0, 2*PI, drawCaps, wireframeColor);
 }
 
 // CAPSULE
 void MyDrawPolygonCapsule(Capsule capsule, int nSectors, int nParallels, Color color = LIGHTGRAY)
 {
 	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
-	MyDrawPolygonCylinder(cylinder, nSectors, false, color);
+	MyDrawPolygonCylinderPortion(cylinder, nSectors, 0, 2*PI, false, color);
 
 	Sphere sphere = { capsule.ref, capsule.radius };
 	sphere.ref.Translate({ 0, capsule.halfHeight, 0 });
@@ -559,10 +582,10 @@ void MyDrawPolygonCapsule(Capsule capsule, int nSectors, int nParallels, Color c
 	MyDrawPolygonSpherePortion(sphere, nSectors, nParallels, 0, 2 * PI, PI/2, PI, color);
 }
 
-void MyDrawWireframeCapsule(Capsule capsule, int nSectors, int nParallels, Color color = DARKGRAY)
+void MyDrawWireframeCapsule(Capsule capsule, int nSectors, int nParallels, Color color = LIGHTGRAY)
 {
 	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
-	MyDrawWireframeCylinder(cylinder, nSectors, false, color);
+	MyDrawWireframeCylinderPortion(cylinder, nSectors, 0, 2*PI, false, color);
 
 	Sphere sphere = { capsule.ref, capsule.radius };
 	sphere.ref.Translate({ 0, capsule.halfHeight, 0 });
@@ -576,4 +599,21 @@ void MyDrawCapsule(Capsule capsule, int nSectors = 10, int nParallels = 10, bool
 {
 	if (drawPolygon) MyDrawPolygonCapsule(capsule, nSectors, nParallels, polygonColor);
 	if (drawWireframe) MyDrawWireframeCapsule(capsule, nSectors, nParallels, wireframeColor);
+}
+
+// ROUNDED BOX
+void MyDrawPolygonRoundedBox(RoundedBox roundedBox, int nSectors, Color color = LIGHTGRAY)
+{
+
+}
+
+void MyDrawWireframeRoundedBox(RoundedBox roundedBox, int nSectors, Color color = LIGHTGRAY)
+{
+
+}
+
+void MyDrawRoundedBox(RoundedBox roundedBox, int nSectors, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+{
+	if (drawPolygon) MyDrawPolygonRoundedBox(roundedBox, nSectors, polygonColor);
+	if (drawWireframe) MyDrawWireframeRoundedBox(roundedBox, nSectors, wireframeColor);
 }
