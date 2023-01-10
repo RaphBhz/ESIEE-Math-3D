@@ -236,7 +236,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlPopMatrix();
 }
 
-void MyDrawWireframeBox(Box box, Color color = LIGHTGRAY)
+void MyDrawWireframeBox(Box box, Color color = DARKGRAY)
 {
 	// Checking GC cache limit
 	int numVertex = 24;
@@ -294,10 +294,19 @@ void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Colo
 }
 
 // SPHERE
-void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color color = LIGHTGRAY) {
+
+
+void MyDrawPolygonSpherePortion(Sphere sphere, int nMeridians, int nParallels, float startTheta, float endTheta, float startPhi, float endPhi, Color color = LIGHTGRAY)
+{
+	// Angular range of the sphere portion
+	float deltaTheta = endTheta - startTheta;
+	float deltaPhi = endPhi - startPhi;
+
+	// Coefficient of the portion of sphere that will be drawn compared to a full sphere
+	float drawCoeff = (deltaTheta / (2 * PI)) * (deltaPhi / (PI));
 
 	// Checking GC cache limit
-	int numVertex = nMeridians * (nParallels+1) * 6;
+	int numVertex = nMeridians * (nParallels + 1) * 6 * drawCoeff;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	rlPushMatrix();
@@ -315,16 +324,16 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 	rlColor4ub(color.r, color.g, color.b, color.a);
 
 	// Sphere Parallels and Meridians
-	float deltaParalel = PI / (nParallels+1);
-	float deltaMeridian = (2*PI) / nMeridians;
+	float deltaParalel = deltaPhi / (nParallels + 1);
+	float deltaMeridian = deltaTheta / nMeridians;
 
 	// Drawing the sphere meshes
-	for (int i = 0; i <= nParallels; i++) {
-		for (int j = 0; j < nMeridians; j++) {
-			Spherical sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
-			Spherical sph2 = { sphere.radius, deltaMeridian * j,  deltaParalel * (i + 1) };
-			Spherical sph3 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * (i + 1) };
-			Spherical sph4 = { sphere.radius, deltaMeridian * (j + 1), deltaParalel * i };
+	for (float phi = startPhi; phi <= endPhi; phi += deltaParalel) {
+		for (float theta = startTheta; theta < endTheta; theta += deltaMeridian) {
+			Spherical sph1 = { sphere.radius, theta, phi };
+			Spherical sph2 = { sphere.radius, theta,  phi + deltaParalel };
+			Spherical sph3 = { sphere.radius, theta + deltaMeridian, phi + deltaParalel };
+			Spherical sph4 = { sphere.radius, theta + deltaMeridian, phi };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
@@ -345,10 +354,17 @@ void MyDrawPolygonSphere(Sphere sphere, int nMeridians, int nParallels, Color co
 	rlPopMatrix();
 }
 
-void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color color = DARKGRAY) {
+void MyDrawWireframeSpherePortion(Sphere sphere, int nMeridians, int nParallels, float startTheta, float endTheta, float startPhi, float endPhi, Color color = LIGHTGRAY)
+{
+	// Angular range of the sphere portion
+	float deltaTheta = endTheta - startTheta;
+	float deltaPhi = endPhi - startPhi;
+
+	// Coefficient of the portion of sphere that will be drawn compared to a full sphere
+	float drawCoeff = (deltaTheta / (2 * PI)) * (deltaPhi / (PI));
 
 	// Checking GC cache limit
-	int numVertex = nMeridians * (nParallels+1) * 10;
+	int numVertex = nMeridians * (nParallels + 1) * 10 * drawCoeff;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
 	rlPushMatrix();
@@ -361,21 +377,21 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 	QuaternionToAxisAngle(sphere.ref.q, &vect, &angle);
 	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
 
-	// Drawing parameters
+	// Parameters for drawing
 	rlBegin(RL_LINES);
 	rlColor4ub(color.r, color.g, color.b, color.a);
 
 	// Sphere Parallels and Meridians
-	float deltaParalel = PI / (nParallels+1);
-	float deltaMeridian = (2*PI) / nMeridians;
+	float deltaParalel = (endPhi - startPhi) / (nParallels + 1);
+	float deltaMeridian = (endTheta - startTheta) / nMeridians;
 
 	// Drawing the sphere wireframe
-	for (int i = 0; i <= nParallels; i++) {
-		for (int j = 0; j < nMeridians; j++) {
-			Spherical sph1 = { sphere.radius, deltaMeridian * j, deltaParalel * i };
-			Spherical sph2 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * (i+1) };
-			Spherical sph3 = { sphere.radius, deltaMeridian * j,  deltaParalel * (i+1) };
-			Spherical sph4 = { sphere.radius, deltaMeridian * (j+1), deltaParalel * i };
+	for (float phi = startPhi; phi <= endPhi; phi += deltaParalel) {
+		for (float theta = startTheta; theta < endTheta; theta += deltaMeridian) {
+			Spherical sph1 = { sphere.radius, theta, phi };
+			Spherical sph2 = { sphere.radius, theta + deltaMeridian, phi + deltaParalel };
+			Spherical sph3 = { sphere.radius, theta,  phi + deltaParalel };
+			Spherical sph4 = { sphere.radius, theta + deltaMeridian, phi };
 
 			Vector3 p1 = SphericalToCartesian(sph1);
 			Vector3 p2 = SphericalToCartesian(sph2);
@@ -400,9 +416,15 @@ void MyDrawWireframeSphere(Sphere sphere, int nMeridians, int nParallels, Color 
 	rlPopMatrix();
 }
 
+void MyDrawSpherePortion(Sphere sphere, int nMeridians, int nParallels, float startTheta, float endTheta, float startPhi, float endPhi, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+{
+	if (drawPolygon) MyDrawPolygonSpherePortion(sphere, nMeridians, nParallels, startTheta, endTheta, startPhi, endPhi, polygonColor);
+	if (drawWireframe) MyDrawWireframeSpherePortion(sphere, nMeridians, nParallels, startTheta, endTheta, startPhi, endPhi, wireframeColor);
+}
+
 void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
-	if (drawPolygon) MyDrawPolygonSphere(sphere, nMeridians, nParallels, polygonColor);
-	if (drawWireframe) MyDrawWireframeSphere(sphere, nMeridians, nParallels, wireframeColor);
+	if (drawPolygon) MyDrawPolygonSpherePortion(sphere, nMeridians, nParallels, 0, 2 * PI, 0, PI, polygonColor);
+	if (drawWireframe) MyDrawWireframeSpherePortion(sphere, nMeridians, nParallels, 0, 2 * PI, 0, PI, wireframeColor);
 }
 
 // CYLINDER 
@@ -451,7 +473,7 @@ void MyDrawPolygonCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fals
 	rlPopMatrix();
 }
 
-void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = LIGHTGRAY) {
+void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = false, Color color = DARKGRAY) {
 	// Checking GC cache limit
 	int numVertex = nSectors * 4;
 	if (rlCheckBufferLimit(numVertex)) rlglDraw();
@@ -500,4 +522,65 @@ void MyDrawWireframeCylinder(Cylinder cylinder, int nSectors, bool drawCaps = fa
 void MyDrawCylinder(Cylinder cylinder, int nSectors = 10, bool drawCaps = false, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonCylinder(cylinder, nSectors, drawCaps, polygonColor);
 	if (drawWireframe) MyDrawWireframeCylinder(cylinder, nSectors, drawCaps, wireframeColor);
+}
+
+// CAPSULE
+void MyDrawPolygonCapsule(Capsule capsule, int nSectors, int nParallels, Color color = LIGHTGRAY)
+{
+	// Checking GC cache limit
+	int numVertex = nSectors * 6;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
+
+	rlPushMatrix();
+
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(capsule.ref.origin.x, capsule.ref.origin.y, capsule.ref.origin.z);
+	QuaternionToAxisAngle(capsule.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Parameters for drawing
+	rlBegin(RL_TRIANGLES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
+	MyDrawPolygonCylinder(cylinder, nSectors);
+
+	rlEnd();
+	rlPopMatrix();
+}
+
+void MyDrawWireframeCapsule(Capsule capsule, int nSectors, int nParallels, Color color = DARKGRAY)
+{
+	// Checking GC cache limit
+	int numVertex = nSectors * 6;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
+
+	rlPushMatrix();
+
+	// Adapting Space
+	Vector3 vect;
+	float angle;
+
+	rlTranslatef(capsule.ref.origin.x, capsule.ref.origin.y, capsule.ref.origin.z);
+	QuaternionToAxisAngle(capsule.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
+
+	// Parameters for drawing
+	rlBegin(RL_LINES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
+
+	Cylinder cylinder = { capsule.ref, capsule.halfHeight, capsule.radius };
+	MyDrawWireframeCylinder(cylinder, nSectors);
+
+	rlEnd();
+	rlPopMatrix();
+}
+
+void MyDrawCapsule(Capsule capsule, int nSectors = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+{
+	if (drawPolygon) MyDrawPolygonCapsule(capsule, nSectors, nParallels, polygonColor);
+	if (drawWireframe) MyDrawWireframeCapsule(capsule, nSectors, nParallels, polygonColor);
 }
