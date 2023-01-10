@@ -160,80 +160,131 @@ void MyDrawDisk(Disk disk, int nSectors = 20, bool drawPolygon = true, bool draw
 // BOX
 void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 {
-	// Face 1
-	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
-	quad.ref.Translate({ 0, box.extents.y, 0 });
-	MyDrawPolygonQuad(quad);
+	// Checking GC cache limit
+	int numVertex = 36;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
-	// Face 2
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
-	quad.ref.Translate({ 0, 0, box.extents.z });
-	MyDrawPolygonQuad(quad);
+	rlPushMatrix();
 
-	// Face 3
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
-	quad.ref.Translate({ 0, 0, -box.extents.z });
-	MyDrawPolygonQuad(quad);
+	// Adapting Space
+	Vector3 vect;
+	float angle;
 
-	// Face 4
-	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
-	quad.ref.Translate({ 0, -box.extents.y, 0 });
-	MyDrawPolygonQuad(quad);
+	rlTranslatef(box.ref.origin.x, box.ref.origin.y, box.ref.origin.z);
+	QuaternionToAxisAngle(box.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
 
-	// Face 5
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	quad.ref.Translate({ -box.extents.x, 0, 0 });
-	MyDrawPolygonQuad(quad);
+	// Parameters for drawing
+	rlBegin(RL_TRIANGLES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
 
-	// Face 6
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
-	quad.ref.Translate({ box.extents.x, 0, 0 });
-	MyDrawPolygonQuad(quad);
+	// FACE 1
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	// FACE 2
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	// FACE 3
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+
+	// FACE 4
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+
+	// FACE 5
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+
+	// FACE 6
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+
+	rlEnd();
+	rlPopMatrix();
 }
 
 void MyDrawWireframeBox(Box box, Color color = LIGHTGRAY)
 {
-	{
-		// Face 1
-		Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
-		quad.ref.Translate({ 0, box.extents.y, 0 });
-		MyDrawWireframeQuad(quad);
+	// Checking GC cache limit
+	int numVertex = 24;
+	if (rlCheckBufferLimit(numVertex)) rlglDraw();
 
-		// Face 2
-		quad = { box.ref,{box.extents.x, 0, box.extents.y} };
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
-		quad.ref.Translate({ 0, 0, box.extents.z });
-		MyDrawWireframeQuad(quad);
+	rlPushMatrix();
 
-		// Face 3
-		quad = { box.ref,{box.extents.x, 0, box.extents.y} };
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
-		quad.ref.Translate({ 0, 0, -box.extents.z });
-		MyDrawWireframeQuad(quad);
+	// Adapting Space
+	Vector3 vect;
+	float angle;
 
-		// Face 4
-		quad = { box.ref,{box.extents.x, 0, box.extents.z} };
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
-		quad.ref.Translate({ 0, -box.extents.y, 0 });
-		MyDrawWireframeQuad(quad);
+	rlTranslatef(box.ref.origin.x, box.ref.origin.y, box.ref.origin.z);
+	QuaternionToAxisAngle(box.ref.q, &vect, &angle);
+	rlRotatef(angle * RAD2DEG, vect.x, vect.y, vect.z);
 
-		// Face 5
-		quad = { box.ref,{box.extents.y, 0, box.extents.z} };
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-		quad.ref.Translate({ -box.extents.x, 0, 0 });
-		MyDrawWireframeQuad(quad);
+	// Parameters for drawing
+	rlBegin(RL_LINES);
+	rlColor4ub(color.r, color.g, color.b, color.a);
 
-		// Face 6
-		quad = { box.ref,{box.extents.y, 0, box.extents.z} };
-		quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
-		quad.ref.Translate({ box.extents.x, 0, 0 });
-		MyDrawWireframeQuad(quad);
-	}
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
+	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
+
+	rlEnd();
+	rlPopMatrix();
 }
 
 void MyDrawBox(Box box, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)

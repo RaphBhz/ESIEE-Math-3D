@@ -121,10 +121,10 @@ int main(int argc, char* argv[])
 			Cylinder cylinder = { ref, 3, 3 };
 
 			// MyDrawQuad(quad);
-			// MyDrawBox(box);
+			MyDrawBox(box);
 			// MyDrawDisk(disk);
 			// MyDrawSphere(sphere, 50, 50);
-			MyDrawCylinder(cylinder, 50);
+			// MyDrawCylinder(cylinder, 50);
 
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
