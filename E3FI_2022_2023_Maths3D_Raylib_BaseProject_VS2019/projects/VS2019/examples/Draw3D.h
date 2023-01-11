@@ -604,15 +604,221 @@ void MyDrawCapsule(Capsule capsule, int nSectors = 10, int nParallels = 10, bool
 // ROUNDED BOX
 void MyDrawPolygonRoundedBox(RoundedBox roundedBox, int nSectors, Color color = LIGHTGRAY)
 {
+	Vector3 offset = {
+		roundedBox.extents.x + roundedBox.radius,
+		roundedBox.extents.y + roundedBox.radius,
+		roundedBox.extents.z + roundedBox.radius
+	};
 
+	// Well, here we go...
+	Quad quad = { roundedBox.ref, roundedBox.extents.x, 0, roundedBox.extents.z };
+	quad.ref.Translate({ 0, offset.y, 0 });
+	MyDrawPolygonQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
+	quad.ref.Translate({ -offset.x, -offset.y, 0 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+	MyDrawPolygonQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.z };
+	quad.ref.Translate({ offset.x, -offset.y, 0});
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+	MyDrawPolygonQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
+	quad.ref.Translate({ offset.x, offset.y, 0 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+	MyDrawPolygonQuad(quad, color);
+
+	quad.ref = roundedBox.ref;
+	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.y };
+
+	quad.ref.Translate({ 0, 0, offset.z });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI/2));
+	MyDrawPolygonQuad(quad, color);
+
+	quad.ref.Translate({ 0, 0, -offset.z*2 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+	MyDrawPolygonQuad(quad, color);
+
+	Cylinder cylinder = { roundedBox.ref, roundedBox.extents.y, roundedBox.radius };
+	cylinder.ref.Translate({ roundedBox.extents.x, 0, roundedBox.extents.z });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors*4, 0, PI/2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, -roundedBox.extents.z*2 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI/2, PI, false, color);
+
+	cylinder.ref.Translate({ -roundedBox.extents.x * 2, 0, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI, 3 * PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, roundedBox.extents.z * 2 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2*PI, false, color);
+
+	cylinder = { roundedBox.ref, roundedBox.extents.z, roundedBox.radius };
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+
+	cylinder.ref.Translate({ roundedBox.extents.x, -roundedBox.extents.y, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, 0, PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, roundedBox.extents.y*2, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI/2, PI, false, color);
+
+	cylinder.ref.Translate({ -roundedBox.extents.x*2, 0, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI, 3*PI/2, false, color);
+
+	cylinder.ref.Translate({ 0, -roundedBox.extents.y * 2, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
+
+	cylinder = { roundedBox.ref, roundedBox.extents.x, roundedBox.radius };
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+
+	cylinder.ref.Translate({ 0, roundedBox.extents.y, roundedBox.extents.z });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, 0, PI/2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, -roundedBox.extents.z*2 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI/2, PI, false, color);
+
+	cylinder.ref.Translate({ 0, -roundedBox.extents.y*2, 0 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, PI, 3*PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, roundedBox.extents.z*2 });
+	MyDrawPolygonCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2*PI, false, color);
+
+	Sphere sphere = { roundedBox.ref, roundedBox.radius };
+
+	sphere.ref.Translate({ roundedBox.extents.x, -roundedBox.extents.y, roundedBox.extents.z });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors-1, 0, PI / 2, PI/2, PI, color);
+	sphere.ref.Translate({ 0, roundedBox.extents.y * 2, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors - 1, 0, PI / 2, 0, PI/2, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ 0, 0, -roundedBox.extents.z*2 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors-1, PI/2, PI, 0, PI / 2, color);
+	sphere.ref.Translate({ 0, -roundedBox.extents.y*2, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors - 1, PI / 2, PI, PI/2, PI, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ -roundedBox.extents.x*2, 0, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors-1, PI, 3*PI/2, PI/2, PI, color);
+	sphere.ref.Translate({ 0, roundedBox.extents.y * 2, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors - 1, PI, 3 * PI / 2, 0, PI / 2, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ 0, 0, roundedBox.extents.z*2 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors-1, 3*PI/2, 2*PI, 0, PI/2, color);
+	sphere.ref.Translate({ 0, -roundedBox.extents.y*2, 0 });
+	MyDrawPolygonSpherePortion(sphere, nSectors, nSectors - 1, 3 * PI / 2, 2 * PI, PI / 2, PI, color);
 }
 
 void MyDrawWireframeRoundedBox(RoundedBox roundedBox, int nSectors, Color color = LIGHTGRAY)
 {
+	Vector3 offset = {
+	roundedBox.extents.x + roundedBox.radius,
+	roundedBox.extents.y + roundedBox.radius,
+	roundedBox.extents.z + roundedBox.radius
+	};
 
+	// Well, here we go...
+	Quad quad = { roundedBox.ref, roundedBox.extents.x, 0, roundedBox.extents.z };
+	quad.ref.Translate({ 0, offset.y, 0 });
+	MyDrawWireframeQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
+	quad.ref.Translate({ -offset.x, -offset.y, 0 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	MyDrawWireframeQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.z };
+	quad.ref.Translate({ offset.x, -offset.y, 0 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	MyDrawWireframeQuad(quad, color);
+
+	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
+	quad.ref.Translate({ offset.x, offset.y, 0 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	MyDrawWireframeQuad(quad, color);
+
+	quad.ref = roundedBox.ref;
+	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.y };
+
+	quad.ref.Translate({ 0, 0, offset.z });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+	MyDrawWireframeQuad(quad, color);
+
+	quad.ref.Translate({ 0, 0, -offset.z * 2 });
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+	MyDrawWireframeQuad(quad, color);
+
+	Cylinder cylinder = { roundedBox.ref, roundedBox.extents.y, roundedBox.radius };
+	cylinder.ref.Translate({ roundedBox.extents.x, 0, roundedBox.extents.z });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 0, PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, -roundedBox.extents.z * 2 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI / 2, PI, false, color);
+
+	cylinder.ref.Translate({ -roundedBox.extents.x * 2, 0, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI, 3 * PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, roundedBox.extents.z * 2 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
+
+	cylinder = { roundedBox.ref, roundedBox.extents.z, roundedBox.radius };
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+
+	cylinder.ref.Translate({ roundedBox.extents.x, -roundedBox.extents.y, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 0, PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI / 2, PI, false, color);
+
+	cylinder.ref.Translate({ -roundedBox.extents.x * 2, 0, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI, 3 * PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, -roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
+
+	cylinder = { roundedBox.ref, roundedBox.extents.x, roundedBox.radius };
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+
+	cylinder.ref.Translate({ 0, roundedBox.extents.y, roundedBox.extents.z });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 0, PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, -roundedBox.extents.z * 2 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI / 2, PI, false, color);
+
+	cylinder.ref.Translate({ 0, -roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, PI, 3 * PI / 2, false, color);
+
+	cylinder.ref.Translate({ 0, 0, roundedBox.extents.z * 2 });
+	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
+
+	Sphere sphere = { roundedBox.ref, roundedBox.radius };
+
+	sphere.ref.Translate({ roundedBox.extents.x, -roundedBox.extents.y, roundedBox.extents.z });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, 0, PI / 2, PI / 2, PI, color);
+	sphere.ref.Translate({ 0, roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, 0, PI / 2, 0, PI / 2, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ 0, 0, -roundedBox.extents.z * 2 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, PI / 2, PI, 0, PI / 2, color);
+	sphere.ref.Translate({ 0, -roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, PI / 2, PI, PI / 2, PI, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ -roundedBox.extents.x * 2, 0, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, PI, 3 * PI / 2, PI / 2, PI, color);
+	sphere.ref.Translate({ 0, roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, PI, 3 * PI / 2, 0, PI / 2, color);
+
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,1,0 }), PI / 2));
+	sphere.ref.Translate({ 0, 0, roundedBox.extents.z * 2 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, 3 * PI / 2, 2 * PI, 0, PI / 2, color);
+	sphere.ref.Translate({ 0, -roundedBox.extents.y * 2, 0 });
+	MyDrawWireframeSpherePortion(sphere, nSectors, nSectors - 1, 3 * PI / 2, 2 * PI, PI / 2, PI, color);
 }
 
-void MyDrawRoundedBox(RoundedBox roundedBox, int nSectors, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
+void MyDrawRoundedBox(RoundedBox roundedBox, int nSectors = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY)
 {
 	if (drawPolygon) MyDrawPolygonRoundedBox(roundedBox, nSectors, polygonColor);
 	if (drawWireframe) MyDrawWireframeRoundedBox(roundedBox, nSectors, wireframeColor);

@@ -114,12 +114,13 @@ int main(int argc, char* argv[])
 				{ 0,1,0 },
 				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,0 }), 0));
 			
-			Quad quad = { ref,{1,0,1} };
+			Quad quad = { ref,{1, 0, 1} };
 			Box box = { ref, {1, 2, 3} };
 			Disk disk = { ref, 2 };
 			Sphere sphere = { ref, 4 };
 			Cylinder cylinder = { ref, 3, 3 };
 			Capsule capsule = { ref, 3, 3 };
+			RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };
 
 			// MyDrawQuad(quad);
 			// MyDrawBox(box);
@@ -128,7 +129,8 @@ int main(int argc, char* argv[])
 			// MyDrawCylinder(cylinder, 50);
 			// MyDrawSpherePortion(sphere, 40, 40, 0, PI, 0, PI / 2);
 			// MyDrawCapsule(capsule);
-			MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
+			// MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
+			MyDrawRoundedBox(roundedBox, 4);
 
 			//3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
