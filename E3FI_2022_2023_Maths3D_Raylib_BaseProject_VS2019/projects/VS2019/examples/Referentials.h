@@ -94,3 +94,32 @@ Vector3 GlobalToLocalPos(Vector3 globalPos, ReferenceFrame localRef)
 {
 	return Vector3Add(globalPos, localRef.origin);
 }
+
+Vector3 ProjectedPointOnLine(Vector3 linePt, Vector3 lineUnitDir, Vector3 pt)
+{
+	Vector3 projectedPoint = Vector3Subtract(pt, linePt);
+	float projectionQuantity = Vector3DotProduct(lineUnitDir, projectedPoint);
+
+	return {
+		lineUnitDir.x * projectionQuantity,
+		lineUnitDir.y * projectionQuantity,
+		lineUnitDir.z * projectionQuantity
+	};
+}
+
+float SqDistPointSegment(Segment seg, Vector3 pt)
+{
+	float distance = abs((seg.pt2.x - seg.pt1.x) * (seg.pt1.y - pt.y) - (seg.pt1.x - pt.x) * (seg.pt2.y - seg.pt1.y))
+		/ sqrt(powf(seg.pt2.x - seg.pt1.x, 2) + powf(seg.pt2.y - seg.pt1.y, 2));
+
+	return powf(distance, 2);
+}
+
+bool IsPointInsideBox(Box box, Vector3 globalPt)
+{
+	Vector3 localPt = GlobalToLocalPos(globalPt, box.ref);
+
+	return localPt.x <= box.extents.x && localPt.x >= -box.extents.x
+		&& localPt.y <= box.extents.y && localPt.y >= -box.extents.y
+		&& localPt.z <= box.extents.z && localPt.z >= -box.extents.z;
+}

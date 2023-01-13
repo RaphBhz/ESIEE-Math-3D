@@ -84,6 +84,19 @@ int main(int argc, char* argv[])
 	camera.type = CAMERA_PERSPECTIVE;
 	SetCameraMode(camera, CAMERA_CUSTOM);  // Set an orbital camera mode
 
+	// TESTING MATHS TOOLS - use breakpoints to verify values
+	// Vector3 test = { 8, 3, 4 };
+	// test = GlobalToLocalVect(test, ref);
+	// test = LocalToGlobalVect(test, ref);
+	//ReferenceFrame ref = ReferenceFrame(
+	//	{ 0,1,0 },
+	//	QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	//Box testBox = { ref, {4, 5, 1} };
+	//Vector3 test = { 2, 1, 0 };
+	//bool res = IsPointInsideBox(testBox, test);
+	//test.z += 10;
+	//res = IsPointInsideBox(testBox, test);
+
 
 	//--------------------------------------------------------------------------------------
 
@@ -112,7 +125,7 @@ int main(int argc, char* argv[])
 			// QUAD DISPLAY TEST
 			ReferenceFrame ref = ReferenceFrame(
 				{ 0,1,0 },
-				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,0 }), 0));
+				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
 			
 			Quad quad = { ref,{1, 0, 1} };
 			Box box = { ref, {1, 2, 3} };
@@ -122,6 +135,7 @@ int main(int argc, char* argv[])
 			Capsule capsule = { ref, 3, 3 };
 			RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };
 
+			// TESTING DRAWING
 			// MyDrawQuad(quad);
 			// MyDrawBox(box);
 			// MyDrawDisk(disk);
@@ -130,9 +144,9 @@ int main(int argc, char* argv[])
 			// MyDrawSpherePortion(sphere, 40, 40, 0, PI, 0, PI / 2);
 			// MyDrawCapsule(capsule);
 			// MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
-			MyDrawRoundedBox(roundedBox, 4);
+			// MyDrawRoundedBox(roundedBox, 10);
 
-			//3D REFERENTIAL
+			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
 			DrawLine3D({ 0 }, { 0,10,0 }, DARKGRAY);
 			DrawSphere({ 10,0,0 }, .2f, RED);
