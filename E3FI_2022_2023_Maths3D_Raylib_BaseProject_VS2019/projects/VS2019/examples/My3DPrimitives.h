@@ -20,6 +20,7 @@ struct Triangle {
 
 struct Plane {
 	Vector3 n;
+	float d;
 };
 
 struct ReferenceFrame {

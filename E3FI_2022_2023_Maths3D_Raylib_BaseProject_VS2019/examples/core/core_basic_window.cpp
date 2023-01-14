@@ -27,7 +27,8 @@
 #include <vector>
 #include "../../projects/VS2019/examples/My3DPrimitives.h"
 #include "../../projects/VS2019/examples/Draw3D.h"
-#include "../../projects/VS2019/examples/Referentials.h"
+#include "../../projects/VS2019/examples/Referentials3D.h"
+#include "../../projects/VS2019/examples/Collisions3D.h"
 
 #if defined(PLATFORM_DESKTOP)
 #define GLSL_VERSION            330
@@ -127,13 +128,13 @@ int main(int argc, char* argv[])
 				{ 0,1,0 },
 				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
 			
-			Quad quad = { ref,{1, 0, 1} };
+			/*Quad quad = { ref,{1, 0, 1} };
 			Box box = { ref, {1, 2, 3} };
 			Disk disk = { ref, 2 };
 			Sphere sphere = { ref, 4 };
 			Cylinder cylinder = { ref, 3, 3 };
 			Capsule capsule = { ref, 3, 3 };
-			RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };
+			RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };*/
 
 			// TESTING DRAWING
 			// MyDrawQuad(quad);
@@ -145,6 +146,31 @@ int main(int argc, char* argv[])
 			// MyDrawCapsule(capsule);
 			// MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
 			// MyDrawRoundedBox(roundedBox, 10);
+
+			//TESTS INTERSECTIONS
+			Vector3 interPt;
+			Vector3 interNormal;
+			float t;
+			//THE SEGMENT
+			Segment segment = { {-5,8,0},{5,-8,3} };
+			DrawLine3D(segment.pt1, segment.pt2, BLACK);
+			MyDrawSphere({ {segment.pt1,QuaternionIdentity()},.15f }, 16, 8, true, true, RED);
+			MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
+
+			// TEST LINE PLANE INTERSECTION
+			Plane plane = { Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0},time
+			* .5f)), 2 };
+			ReferenceFrame refQuad = { Vector3Scale(plane.n, plane.d),
+			QuaternionFromVector3ToVector3({0,1,0},plane.n) };
+			Quad quad = { refQuad,{10,1,10} };
+			MyDrawQuad(quad);
+			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
+			if (IntersectLinePlane(line, plane, t, interPt, interNormal))
+			{
+				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
+				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
+			}
+
 
 			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid

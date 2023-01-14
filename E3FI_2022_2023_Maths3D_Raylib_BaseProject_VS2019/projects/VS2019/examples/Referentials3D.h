@@ -3,6 +3,7 @@
 #include <math.h>
 #include <float.h>
 #include <vector>
+#include "My3DPrimitives.h"
 
 struct Polar {
 	float rho;
