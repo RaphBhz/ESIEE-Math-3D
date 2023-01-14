@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 			Quad quad = { refQuad,{10,1,10} };
 			MyDrawQuad(quad);
 			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
-			if (IntersectLinePlane(line, plane, t, interPt, interNormal))
+			if (IntersectSegmentPlane(segment, plane, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);

@@ -18,5 +18,7 @@ bool IntersectLinePlane(Line line, Plane plane, float& t, Vector3& interPt, Vect
 
 bool IntersectSegmentPlane(Segment seg, Plane plane, float& t, Vector3& interPt, Vector3& interNormal)
 {
-
+	if (!IntersectLinePlane({ seg.pt1, Vector3Subtract(seg.pt2, seg.pt1) }, plane, t, interPt, interNormal))
+		return false;
+	return t >= 0 && t <= 1;
 }
