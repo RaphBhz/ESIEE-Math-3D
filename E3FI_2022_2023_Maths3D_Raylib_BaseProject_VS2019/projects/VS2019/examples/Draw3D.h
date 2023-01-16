@@ -420,7 +420,7 @@ void MyDrawSpherePortion(Sphere sphere, int nMeridians, int nParallels, float st
 	if (drawWireframe) MyDrawWireframeSpherePortion(sphere, nMeridians, nParallels, startTheta, endTheta, startPhi, endPhi, wireframeColor);
 }
 
-void MyDrawSphere(Sphere sphere, int nMeridians = 10, int nParallels = 10, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
+void MyDrawSphere(Sphere sphere, int nMeridians = 30, int nParallels = 30, bool drawPolygon = true, bool drawWireframe = true, Color polygonColor = LIGHTGRAY, Color wireframeColor = DARKGRAY) {
 	if (drawPolygon) MyDrawPolygonSpherePortion(sphere, nMeridians, nParallels, 0, 2 * PI, 0, PI, polygonColor);
 	if (drawWireframe) MyDrawWireframeSpherePortion(sphere, nMeridians, nParallels, 0, 2 * PI, 0, PI, wireframeColor);
 }

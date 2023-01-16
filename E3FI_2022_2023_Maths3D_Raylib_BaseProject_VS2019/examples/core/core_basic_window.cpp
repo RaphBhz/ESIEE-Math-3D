@@ -124,9 +124,9 @@ int main(int argc, char* argv[])
 		{
 			// DRAWING
 			// QUAD DISPLAY TEST
-			ReferenceFrame ref = ReferenceFrame(
-				{ 0,1,0 },
-				QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+			//ReferenceFrame ref = ReferenceFrame(
+				//{ 0,1,0 },
+				//QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
 			
 			/*Quad quad = { ref,{1, 0, 1} };
 			Box box = { ref, {1, 2, 3} };
@@ -151,21 +151,28 @@ int main(int argc, char* argv[])
 			Vector3 interPt;
 			Vector3 interNormal;
 			float t;
-			//THE SEGMENT
+
+			Plane plane = {
+				Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0},time * .5f)), 2
+			};
+			ReferenceFrame ref = {
+				Vector3Scale(plane.n, plane.d),
+				QuaternionFromVector3ToVector3({0,1,0},plane.n)
+			};
+			Quad quad = { ref, {10,1,10} };
 			Segment segment = { {-5,8,0},{5,-8,3} };
+			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
+			Sphere sphere = { ref, 1 };
+
+			//THE SEGMENT
 			DrawLine3D(segment.pt1, segment.pt2, BLACK);
 			MyDrawSphere({ {segment.pt1,QuaternionIdentity()},.15f }, 16, 8, true, true, RED);
 			MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
 
-			// TEST LINE PLANE INTERSECTION
-			Plane plane = { Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0},time
-			* .5f)), 2 };
-			ReferenceFrame refQuad = { Vector3Scale(plane.n, plane.d),
-			QuaternionFromVector3ToVector3({0,1,0},plane.n) };
-			Quad quad = { refQuad,{10,1,10} };
-			MyDrawQuad(quad);
-			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
-			if (IntersectSegmentPlane(segment, plane, t, interPt, interNormal))
+			// TEST INTERSECTION
+			MyDrawSphere(sphere);
+
+			if (IntersectSegmentSphere(segment, sphere, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
