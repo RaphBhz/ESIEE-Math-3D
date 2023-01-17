@@ -66,3 +66,34 @@ bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, V
 
 	return true;
 }
+
+
+
+bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt, Vector3& interNormal) {
+	if (t > 1) return false;
+
+	float R = disk.radius;
+	Vector3 AB = Vector3Subtract(segment.pt2, segment.pt1);
+	Vector3 OA = Vector3Subtract(segment.pt1, disk.ref.origin);
+	Plane plan;
+	IntersectSegmentPlane(segment, GetPlaneFromAnything(disk.ref), t, interPt, interNormal);
+	Vector3 OM = Vector3Add(OA, Vector3Scale(AB, t));
+
+
+
+	// we verify if OM.OM <= R
+	// if not we return false
+	//if(Vector3Multiply(OM,OM) > R) return false
+
+}
+
+Plane GetPlaneFromAnything(float x, float y, float z) {
+	// https://www.kartable.fr/ressources/mathematiques/methode/montrer-que-trois-points-definissent-un-plan/4534
+	Plane plane;
+	Vector3 vect;
+	vect.x = x;
+	vect.y = y;
+	vect.z = z;
+	plane.n = vect;
+	return plane;
+}
