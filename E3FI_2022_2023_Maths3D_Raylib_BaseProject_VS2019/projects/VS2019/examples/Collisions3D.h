@@ -23,13 +23,9 @@ bool IntersectSegmentPlane(Segment seg, Plane plane, float& t, Vector3& interPt,
 	return t >= 0 && t <= 1;
 }
 
-// WIP, NOT WORKING YET
 bool IntersectSegmentQuad(Segment seg, Quad quad, float& t, Vector3& interPt, Vector3& interNormal)
 {
-	Vector3 u = LocalToGlobalVect({ quad.extents.x, 0, 0 }, quad.ref);
-	Vector3 v = LocalToGlobalVect({ 0, 0, quad.extents.z }, quad.ref);
-
-	Vector3 quadNormal = Vector3Normalize(Vector3CrossProduct(u, v));
+	Vector3 quadNormal = quad.ref.j;
 	Plane quadPlane = {
 		quadNormal,
 		quadNormal.x * quad.ref.origin.x + quadNormal.y * quad.ref.origin.y + quadNormal.z * quad.ref.origin.z

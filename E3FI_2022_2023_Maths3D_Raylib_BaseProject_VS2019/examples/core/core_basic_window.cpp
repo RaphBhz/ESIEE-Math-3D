@@ -170,9 +170,9 @@ int main(int argc, char* argv[])
 			MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
 
 			// TEST INTERSECTION
-			MyDrawSphere(sphere);
+			MyDrawQuad(quad);
 
-			if (IntersectSegmentSphere(segment, sphere, t, interPt, interNormal))
+			if (IntersectSegmentQuad(segment, quad, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
