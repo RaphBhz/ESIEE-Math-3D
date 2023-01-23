@@ -44,7 +44,7 @@ bool IntersectSegmentQuad(Segment seg, Quad quad, float& t, Vector3& interPt, Ve
 //NEEDS FIX
 bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt, Vector3& interNormal)
 {
-	Vector3 diskNormal = disk.ref.j;
+	/*Vector3 diskNormal = disk.ref.j;
 	Plane diskPlane = {
 		diskNormal,
 		Vector3DotProduct(diskNormal, disk.ref.origin)
@@ -56,7 +56,22 @@ bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt
 		return localInterPt.rho <= disk.radius && localInterPt.rho >= -disk.radius;
 	}
 
+	return false;*/
+
+	Vector3 diskNormal = disk.ref.j;
+	Plane diskPlane = {
+		diskNormal,
+		Vector3DotProduct(diskNormal, disk.ref.origin)
+	};
+
+	if (IntersectSegmentPlane(segment, diskPlane, t, interPt, interNormal))
+	{
+		Vector3 localInterPt = GlobalToLocalPos(interPt, disk.ref);
+		return localInterPt.x <= disk.radius  && localInterPt.x >= -disk.radius;
+	}
+
 	return false;
+
 }
 
 bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, Vector3& interNormal)

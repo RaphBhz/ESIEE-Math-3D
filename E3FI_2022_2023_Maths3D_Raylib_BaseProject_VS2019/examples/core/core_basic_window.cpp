@@ -171,7 +171,8 @@ int main(int argc, char* argv[])
 			MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
 
 			// TEST INTERSECTION
-			MyDrawQuad(quad);
+			//MyDrawQuad(quad);
+			MyDrawDisk(disk);
 
 			if (IntersectSegmentQuad(segment, quad, t, interPt, interNormal))
 			{
