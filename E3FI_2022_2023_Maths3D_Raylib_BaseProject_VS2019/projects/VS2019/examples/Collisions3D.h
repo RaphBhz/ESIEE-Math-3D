@@ -28,7 +28,7 @@ bool IntersectSegmentQuad(Segment seg, Quad quad, float& t, Vector3& interPt, Ve
 	Vector3 quadNormal = quad.ref.j;
 	Plane quadPlane = {
 		quadNormal,
-		quadNormal.x * quad.ref.origin.x + quadNormal.y * quad.ref.origin.y + quadNormal.z * quad.ref.origin.z
+		Vector3DotProduct(quadNormal, quad.ref.origin)
 	};
 
 	if (IntersectSegmentPlane(seg, quadPlane, t, interPt, interNormal))
@@ -36,6 +36,24 @@ bool IntersectSegmentQuad(Segment seg, Quad quad, float& t, Vector3& interPt, Ve
 		Vector3 localInterPt = GlobalToLocalPos(interPt, quad.ref);
 		return localInterPt.x <= quad.extents.x && localInterPt.x >= -quad.extents.x
 			&& localInterPt.z <= quad.extents.z && localInterPt.z >= -quad.extents.z;
+	}
+
+	return false;
+}
+
+//NEEDS FIX
+bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt, Vector3& interNormal)
+{
+	Vector3 diskNormal = disk.ref.j;
+	Plane diskPlane = {
+		diskNormal,
+		Vector3DotProduct(diskNormal, disk.ref.origin)
+	};
+
+	if (IntersectSegmentPlane(segment, diskPlane, t, interPt, interNormal))
+	{
+		Cylindrical localInterPt = CartesianToCylindrical(GlobalToLocalPos(interPt, disk.ref));
+		return localInterPt.rho <= disk.radius && localInterPt.rho >= -disk.radius;
 	}
 
 	return false;
@@ -63,35 +81,4 @@ bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, V
 	interNormal = Vector3Scale(OI, 1 / Vector3Length(OI));
 
 	return true;
-}
-
-
-
-bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt, Vector3& interNormal) {
-	if (t > 1) return false;
-
-	float R = disk.radius;
-	Vector3 AB = Vector3Subtract(segment.pt2, segment.pt1);
-	Vector3 OA = Vector3Subtract(segment.pt1, disk.ref.origin);
-	Plane plan;
-	IntersectSegmentPlane(segment, GetPlaneFromAnything(disk.ref), t, interPt, interNormal);
-	Vector3 OM = Vector3Add(OA, Vector3Scale(AB, t));
-
-
-
-	// we verify if OM.OM <= R
-	// if not we return false
-	//if(Vector3Multiply(OM,OM) > R) return false
-
-}
-
-Plane GetPlaneFromAnything(float x, float y, float z) {
-	// https://www.kartable.fr/ressources/mathematiques/methode/montrer-que-trois-points-definissent-un-plan/4534
-	Plane plane;
-	Vector3 vect;
-	vect.x = x;
-	vect.y = y;
-	vect.z = z;
-	plane.n = vect;
-	return plane;
 }

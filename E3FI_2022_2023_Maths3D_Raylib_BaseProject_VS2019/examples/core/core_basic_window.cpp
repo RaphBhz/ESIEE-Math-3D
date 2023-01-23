@@ -163,6 +163,7 @@ int main(int argc, char* argv[])
 			Segment segment = { {-5,8,0},{5,-8,3} };
 			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
 			Sphere sphere = { ref, 1 };
+			Disk disk = { ref, 2 };
 
 			//THE SEGMENT
 			DrawLine3D(segment.pt1, segment.pt2, BLACK);
