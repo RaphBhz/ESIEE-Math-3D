@@ -187,7 +187,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
 
-	// FACE 2
+	//// FACE 2
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
@@ -196,7 +196,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
 
-	// FACE 3
+	//// FACE 3
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
@@ -205,7 +205,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
 
-	// FACE 4
+	//// FACE 4
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
@@ -214,7 +214,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 
-	// FACE 5
+	//// FACE 5
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
@@ -223,7 +223,7 @@ void MyDrawPolygonBox(Box box, Color color = LIGHTGRAY)
 	rlVertex3f(box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);
 
-	// FACE 6
+	//// FACE 6
 	rlVertex3f(-box.extents.x / 2, -box.extents.y / 2, -box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, box.extents.z / 2);
 	rlVertex3f(-box.extents.x / 2, box.extents.y / 2, -box.extents.z / 2);

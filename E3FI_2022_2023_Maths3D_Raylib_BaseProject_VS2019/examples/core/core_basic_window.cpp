@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 			//ReferenceFrame ref = ReferenceFrame(
 				//{ 0,1,0 },
 				//QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
-			
+
 			/*Quad quad = { ref,{1, 0, 1} };
 			Box box = { ref, {1, 2, 3} };
 			Disk disk = { ref, 2 };
@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
 			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
 			Sphere sphere = { ref, 1 };
 			Disk disk = { ref, 2 };
+			Box box = { ref,{10,1,10} };
 
 			//THE SEGMENT
 			DrawLine3D(segment.pt1, segment.pt2, BLACK);
@@ -172,9 +173,10 @@ int main(int argc, char* argv[])
 
 			// TEST INTERSECTION
 			//MyDrawQuad(quad);
-			MyDrawDisk(disk);
+			//MyDrawDisk(disk);
+			MyDrawBox(box, false, true);
 
-			if (IntersectSegmentDisk(segment, disk, t, interPt, interNormal))
+			if (IntersectSegmentBox(segment, box, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);

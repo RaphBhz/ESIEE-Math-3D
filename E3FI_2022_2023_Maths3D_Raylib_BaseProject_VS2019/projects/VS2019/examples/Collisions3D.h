@@ -82,3 +82,61 @@ bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, V
 
 	return true;
 }
+
+bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vector3& interNormal) {
+	//Plane face1;
+	//face1.n = box.ref.i;
+	////box.extents.
+	//Plane face2;
+	//face2.n = box.ref.j;
+
+	//Plane face3;
+	//face3.n = box.ref.k;
+
+	//Plane faces[] = { face1, face2, face3 };
+
+	//bool arrInter[sizeof(bool) * 6];
+	//int cpt = 0;
+
+	//for each (Plane face in faces)
+	//{
+	//	arrInter[cpt] = IntersectSegmentPlane(seg, face, t, interPt, interNormal);
+	//	cpt++;
+	//}
+	//for each (bool faceInter in arrInter) {
+	//	if (faceInter) return true;
+	//}
+
+	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
+	quad.ref.Translate({ 0, box.extents.y, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+
+	// Face 2
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+	quad.ref.Translate({ 0, 0, box.extents.z });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	// Face 3
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
+	quad.ref.Translate({ 0, 0, -box.extents.z });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	// Face 4
+	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+	quad.ref.Translate({ 0, -box.extents.y, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	// Face 5
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	quad.ref.Translate({ -box.extents.x, 0, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	// Face 6
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
+	quad.ref.Translate({ box.extents.x, 0, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+}
+
+
+
