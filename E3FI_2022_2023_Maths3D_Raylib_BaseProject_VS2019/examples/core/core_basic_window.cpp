@@ -29,7 +29,7 @@
 #include "../../projects/VS2019/examples/Draw3D.h"
 #include "../../projects/VS2019/examples/Referentials3D.h"
 #include "../../projects/VS2019/examples/Collisions3D.h"
-#include "../../projects/VS2019/examples/Physics.h"
+#include "../../projects/VS2019/examples/Physics3D.h"
 
 #if defined(PLATFORM_DESKTOP)
 #define GLSL_VERSION            330
@@ -149,25 +149,14 @@ int main(int argc, char* argv[])
 	camera.type = CAMERA_PERSPECTIVE;
 	SetCameraMode(camera, CAMERA_CUSTOM);  // Set an orbital camera mode
 
-	// TESTING MATHS TOOLS - use breakpoints to verify values
-	// Vector3 test = { 8, 3, 4 };
-	// test = GlobalToLocalVect(test, ref);
-	// test = LocalToGlobalVect(test, ref);
-	//ReferenceFrame ref = ReferenceFrame(
-	//	{ 0,1,0 },
-	//	QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	//Box testBox = { ref, {4, 5, 1} };
-	//Vector3 test = { 2, 1, 0 };
-	//bool res = IsPointInsideBox(testBox, test);
-	//test.z += 10;
-	//res = IsPointInsideBox(testBox, test);
-
 	ReferenceFrame ref = ReferenceFrame(
-		{ 0,20,0 },
+		{ 0,10,0 },
 		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
 	);
-	Sphere sphere = { ref, 1 };
-	Physics spherePhysics = InitPhysics(sphere, { 0, -0.1, 0 }, 1, 1);
+	Sphere sphere = { ref, 0.5 };
+	ref.origin.y = 0;
+	Quad quads[] = { {ref, {4, 4, 4}} };
+	Physics spherePhysics = InitPhysics(sphere, { 0, -1, 0 }, 1, 0.1);
 
 	//--------------------------------------------------------------------------------------
 
@@ -195,10 +184,14 @@ int main(int argc, char* argv[])
 			// testDrawing();
 			// testIntersections();
 
-			GetSphereGravitationalTranslation(sphere.ref.origin.y, deltaTime, spherePhysics);
-			sphere.ref.origin = Vector3Add(sphere.ref.origin, Vector3Scale(Vector3Scale(spherePhysics.velocity, spherePhysics.speed), deltaTime));
-			printf("position: { %f; %f; %f }\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
-			MyDrawSphere(sphere);
+			// TESTING PHYSICS
+			SphereGravitationalTranslation(quads, sphere.ref.origin.y, deltaTime, spherePhysics);
+			MoveSphere(spherePhysics, sphere);
+			MyDrawSphere(sphere, 40, 40, true, true, RED);
+
+			printf("%f\n", sphere.ref.origin.y);
+
+			for(Quad q : quads) MyDrawQuad(q);
 
 			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
