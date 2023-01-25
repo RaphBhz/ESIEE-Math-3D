@@ -30,6 +30,5 @@ void GetNewVelocity(float y, float ellapsedTime, Physics& phys)
 void GetSphereGravitationalTranslation(float y, float ellapsedTime, Physics& phys)
 {
 	GetNewVelocity(y, ellapsedTime, phys);
-	float a = (phys.energy - phys.mass * g * y);
 	phys.speed = sqrtf(2 * ((phys.energy - phys.mass * g * y) / phys.mass));
 }
