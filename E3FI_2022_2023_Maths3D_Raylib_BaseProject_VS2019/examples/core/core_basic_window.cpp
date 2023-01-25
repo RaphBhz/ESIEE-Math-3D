@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 			//MyDrawQuad(quad);
 			MyDrawDisk(disk);
 
-			if (IntersectSegmentQuad(segment, quad, t, interPt, interNormal))
+			if (IntersectSegmentDisk(segment, disk, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);

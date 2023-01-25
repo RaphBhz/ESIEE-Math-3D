@@ -88,12 +88,16 @@ Vector3 GlobalToLocalVect(Vector3 globalVect, ReferenceFrame localRef)
 
 Vector3 LocalToGlobalPos(Vector3 localPos, ReferenceFrame localRef)
 {
-	return Vector3Subtract(localPos, localRef.origin);
+	Vector3 base = { localRef.i.x, localRef.j.y, localRef.k.z };
+
+	return Vector3Add(Vector3Multiply(localPos, base), localRef.origin);
 }
 
 Vector3 GlobalToLocalPos(Vector3 globalPos, ReferenceFrame localRef)
 {
-	return Vector3Add(globalPos, localRef.origin);
+	Vector3 base = { 1/localRef.i.x, 1/localRef.j.y, 1/localRef.k.z };
+
+	return Vector3Multiply(Vector3Subtract(globalPos, localRef.origin), base);
 }
 
 Vector3 ProjectedPointOnLine(Vector3 linePt, Vector3 lineUnitDir, Vector3 pt)

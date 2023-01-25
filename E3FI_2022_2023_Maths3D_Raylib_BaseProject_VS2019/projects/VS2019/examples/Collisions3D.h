@@ -41,7 +41,6 @@ bool IntersectSegmentQuad(Segment seg, Quad quad, float& t, Vector3& interPt, Ve
 	return false;
 }
 
-//NEEDS FIX
 bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt, Vector3& interNormal)
 {
 	Vector3 diskNormal = disk.ref.j;
