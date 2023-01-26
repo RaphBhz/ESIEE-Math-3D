@@ -166,6 +166,8 @@ int main(int argc, char* argv[])
 			Disk disk = { ref, 2 };
 			Box box = { ref,{10,1,10} };
 			Cylinder cylinder = { ref, 10, 1 };
+			InfiniteCylinder infCyl = { ref, 10 };
+			Capsule capsule = { ref, 5, 1 };
 
 			//THE SEGMENT
 			DrawLine3D(segment.pt1, segment.pt2, BLACK);
@@ -175,9 +177,9 @@ int main(int argc, char* argv[])
 			// TEST INTERSECTION
 			//MyDrawQuad(quad);
 			//MyDrawDisk(disk);
-			MyDrawCylinder(cylinder);
+			MyDrawCylinder(cylinder, 10, false);
 
-			if (IntersectSegmentInfiniteCylinder(segment, cylinder, t, interPt, interNormal))
+			if (IntersectSegmentInfiniteCylinder(segment, infCyl, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);

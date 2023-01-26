@@ -115,7 +115,7 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
 }
 
-bool IntersectSegmentInfiniteCylinder(Segment seg, Cylinder cylinder, float& t, Vector3& interPt, Vector3& interNormal)
+bool IntersectSegmentInfiniteCylinder(Segment seg, InfiniteCylinder cylinder, float& t, Vector3& interPt, Vector3& interNormal)
 {
 	Vector3 AB = Vector3Subtract(seg.pt2, seg.pt1);
 	Vector3 PQ = Vector3Subtract(Vector3Add(cylinder.ref.origin, cylinder.ref.j), cylinder.ref.origin);
@@ -125,7 +125,7 @@ bool IntersectSegmentInfiniteCylinder(Segment seg, Cylinder cylinder, float& t, 
 	float PQ2 = powf(Vector3Length(PQ), 2);
 
 	float a = powf(Vector3Length(AB), 2) - (powf(ABPQ, 2) / PQ2);
-	float b = 2 * Vector3DotProduct(AB, PA) - (PAPQ * ABPQ) / PQ2;
+	float b = 2 * Vector3DotProduct(AB, PA) - (2 * PAPQ * ABPQ) / PQ2;
 	float c = powf(Vector3Length(PA), 2) - (powf(PAPQ, 2) / powf(Vector3Length(PQ), 2)) - powf(cylinder.radius, 2);
 
 	float delta = powf(b, 2) - 4 * a * c;
@@ -133,7 +133,14 @@ bool IntersectSegmentInfiniteCylinder(Segment seg, Cylinder cylinder, float& t, 
 	if (delta < 0) return false;
 	float d = fabs(delta) <= EPSILON ? 0 : sqrtf(delta);
 
-	t = (-b - d) / (2 * a);
+	float t1 = (-b - d) / (2 * a);
+	float t2 = (-b + d) / (2 * a);
+
+	if (t1 < 0)
+		t = t2;
+	else
+		t = t1;
+
 	if (t < 0 || t > 1) return false;
 
 	Vector3 OI = Vector3Subtract(interPt, cylinder.ref.origin);
@@ -144,13 +151,26 @@ bool IntersectSegmentInfiniteCylinder(Segment seg, Cylinder cylinder, float& t, 
 	return true;
 }
 
+bool IntersectSegmentCylinder(Segment seg, Cylinder cyl, float& t, Vector3 interPt, Vector3 interNormal)
+{
+	InfiniteCylinder infCyl = { cyl.ref, cyl.radius };
+	if (IntersectSegmentInfiniteCylinder(seg, infCyl, t, interPt, interNormal))
+	{
+		Vector3 localInterPt = GlobalToLocalPos(interPt, cyl.ref);
+		if (localInterPt.y <= cyl.halfHeight || localInterPt.y >= -cyl.halfHeight)
+			return true;
+	}
+	return false;
+}
+
 bool IntersectSegmentCapsule(Segment seg, Capsule cap, float& t, Vector3& interPt, Vector3& interNormal)
 {
 	Cylinder cyl = { cap.ref, cap.halfHeight };
 
-	if (IntersectSegmentInfiniteCylinder(seg, cyl, t, interPt, interNormal))
+	if (IntersectSegmentCylinder(seg, cyl, t, interPt, interNormal))
 	{
-		if (interPt.y <= cap.halfHeight || interPt.y >= -cap.halfHeight)
+		Vector3 localInterPt = GlobalToLocalPos(interPt, cyl.ref);
+		if (localInterPt.y <= cap.halfHeight || localInterPt.y >= -cap.halfHeight)
 			return true;
 	}
 
@@ -179,86 +199,38 @@ bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector
 
 	if (IntersectSegmentBox(seg, box, t, interPt, interNormal)) return true;
 
-	Sphere UpperSphere = { rndBox.ref, rndBox.radius };
-	Sphere UnderSphere = { rndBox.ref, rndBox.radius };
+	Capsule cap = { rndBox.ref, rndBox.radius };
+	cap.ref.origin.x += rndBox.extents.x / 2;
+	cap.ref.origin.z += rndBox.extents.z / 2;
 
-	UpperSphere.ref.origin = Vector3Add(UpperSphere.ref.origin, {box.extents.x/2, box.extents.y/2, box.extents.z/2});
-	UnderSphere.ref.origin = Vector3Add(UnderSphere.ref.origin, { box.extents.x / 2, -box.extents.y / 2, box.extents.z / 2 });
-	if (IntersectSegmentSphere(seg, UpperSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= 0 && interSph.rho <= PI / 2 && interSph.phi >= 0 && interSph.phi <= PI / 2)
-			return true;
-	}
-	if (IntersectSegmentSphere(seg, UnderSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= 0 && interSph.rho <= PI / 2 && interSph.phi >= 0 && interSph.phi >= PI / 2)
-			return true;
-	}
-
-	UpperSphere.ref.origin = Vector3Add(UpperSphere.ref.origin, { 0, 0, -box.extents.z });
-	UnderSphere.ref.origin = Vector3Add(UnderSphere.ref.origin, { 0, 0, -box.extents.z });
-	if (IntersectSegmentSphere(seg, UpperSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= PI/2 && interSph.rho <= PI && interSph.phi >= 0 && interSph.phi <= PI / 2)
-			return true;
-	}
-	if (IntersectSegmentSphere(seg, UnderSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= PI / 2 && interSph.rho <= PI && interSph.phi >= 0 && interSph.phi >= PI / 2)
-			return true;
-	}
-
-	UpperSphere.ref.origin = Vector3Add(UpperSphere.ref.origin, { -box.extents.x, 0, 0 });
-	UnderSphere.ref.origin = Vector3Add(UnderSphere.ref.origin, { -box.extents.x, 0, 0 });
-	if (IntersectSegmentSphere(seg, UpperSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= PI && interSph.rho <= (3*PI)/2 && interSph.phi >= 0 && interSph.phi <= PI / 2)
-			return true;
-	}
-	if (IntersectSegmentSphere(seg, UnderSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= PI && interSph.rho <= (3 * PI) / 2 && interSph.phi >= 0 && interSph.phi >= PI / 2)
-			return true;
-	}
-
-	UpperSphere.ref.origin = Vector3Add(UpperSphere.ref.origin, { 0, 0, box.extents.z });
-	UnderSphere.ref.origin = Vector3Add(UnderSphere.ref.origin, { 0, 0, box.extents.z });
-	if (IntersectSegmentSphere(seg, UpperSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= (3*PI) / 2 && interSph.rho <= 2*PI && interSph.phi >= 0 && interSph.phi <= PI / 2)
-			return true;
-	}
-	if (IntersectSegmentSphere(seg, UnderSphere, t, interPt, interNormal))
-	{
-		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.rho >= (3 * PI) / 2 && interSph.rho <= 2 * PI && interSph.phi >= 0 && interSph.phi >= PI / 2)
-			return true;
-	}
-
-	Cylinder xCylinder = { rndBox.ref, rndBox.radius };
-	xCylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle({ 1,0,0 }, PI / 2));
-	Cylinder zCylinder = { rndBox.ref, rndBox.radius };
-	zCylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle({ 0,0,1 }, PI / 2));
-
-	xCylinder.ref.origin = Vector3Add(xCylinder.ref.origin, { 0, box.extents.y / 2, box.extents.z / 2 });
-	zCylinder.ref.origin = Vector3Add(zCylinder.ref.origin, { box.extents.x / 2, box.extents.y / 2, 0 });
-	if (IntersectSegmentInfiniteCylinder(seg, xCylinder, t, interPt, interNormal))
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
 		if (interCyl.theta >= 0 && interCyl.theta <= PI / 2)
 			return true;
 	}
-	if (IntersectSegmentInfiniteCylinder(seg, zCylinder, t, interPt, interNormal))
+	cap.ref.origin.z -= rndBox.extents.z;
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
-		if (interCyl.theta >= 0 && interCyl.theta <= PI / 2)
+		if (interCyl.theta >= PI/2 && interCyl.theta <= PI)
+			return true;
+	}
+	cap.ref.origin.x -= rndBox.extents.x;
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if (interCyl.theta >= PI && interCyl.theta <= (3*PI) / 2)
+			return true;
+	}
+	cap.ref.origin.z += rndBox.extents.z;
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if (interCyl.theta >= (3*PI)/2 && interCyl.theta <= 2*PI)
 			return true;
 	}
 }
