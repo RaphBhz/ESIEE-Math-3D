@@ -153,10 +153,10 @@ int main(int argc, char* argv[])
 		{ 0,10,0 },
 		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
 	);
-	Sphere sphere = { ref, 0.5 };
+	Sphere sphere = { ref, 0.2 };
 	ref.origin.y = 0;
 	Quad quads[] = { {ref, {4, 4, 4}} };
-	Physics spherePhysics = InitPhysics(sphere, { 0, -1, 0 }, 1, 0.1);
+	Physics spherePhysics = InitPhysics(sphere, { 0, -1, 0 }, 0.01, 0.1);
 
 	//--------------------------------------------------------------------------------------
 
@@ -185,11 +185,11 @@ int main(int argc, char* argv[])
 			// testIntersections();
 
 			// TESTING PHYSICS
-			SphereGravitationalTranslation(quads, sphere.ref.origin.y, deltaTime, spherePhysics);
-			MoveSphere(spherePhysics, sphere);
+			UpdatePhysics(sphere, quads, deltaTime, spherePhysics);
+			sphere.ref.origin = Vector3Add(sphere.ref.origin, spherePhysics.speed);
 			MyDrawSphere(sphere, 40, 40, true, true, RED);
 
-			printf("%f\n", sphere.ref.origin.y);
+			printf("position: %f %f %f\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
 
 			for(Quad q : quads) MyDrawQuad(q);
 

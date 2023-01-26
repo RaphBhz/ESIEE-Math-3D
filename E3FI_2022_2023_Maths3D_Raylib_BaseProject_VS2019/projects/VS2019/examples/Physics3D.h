@@ -7,57 +7,56 @@ Vector3 G = { 0, -g, 0 };
 struct Physics {
 	float mass;
 	float energy;
-	float speed;
+	float speedValue;
 
-	Vector3 position;
-	Vector3 direction;
-	Vector3 movement;
+	Vector3 speed;
+	Segment travel;
 };
 
 Physics InitPhysics(Sphere object, Vector3 initialDirection, float speed, float mass)
 {
 	Physics phys;
-	phys.position = object.ref.origin;
 	phys.mass = mass;
-	phys.speed = speed;
-	phys.direction = initialDirection;
-	phys.movement = { 0,0,0 };
+	phys.speedValue = speed;
+	phys.speed = initialDirection;
 	phys.energy = mass/2 * powf(speed, 2) + mass * g * object.ref.origin.y;
+	phys.travel.pt1 = object.ref.origin;
 	return phys;
 }
 
-void GetNewVelocity(Quad quads[], float ellapsedTime, Physics& phys)
+void ApplyGravity(Sphere sphere, float ellapsedTime, Physics& phys)
 {
-	bool collision = false;
+	phys.speedValue = sqrtf(2 * ((phys.energy - phys.mass * g * sphere.ref.origin.y) / phys.mass));
+	phys.speed = Vector3Add(phys.speed, Vector3Scale(G, ellapsedTime));
+}
+
+void ApplyCollisions(Sphere sphere, Quad quads[], float ellapsedTime, Physics& phys)
+{
 	float t;
 	Vector3 interPt, interNormal;
-	Segment seg = { phys.position, Vector3Add(phys.position, phys.movement) };
 
 	for(int i = 0; i < 1; i++)
 	{
-		if (IntersectSegmentQuad(seg, quads[i], t, interPt, interNormal))
+		RoundedBox minkowski = { quads[i].ref, quads[i].extents, sphere.radius };
+		if (IntersectSegmentQuad(phys.travel, quads[i], t, interPt, interNormal))
 		{
-			collision = true;
-
-			Quaternion q = QuaternionFromVector3ToVector3(phys.direction, interNormal);
+			Quaternion q = QuaternionFromVector3ToVector3(phys.speed, interNormal);
 			q = QuaternionScale(QuaternionInvert(q), 2);
-			phys.direction = Vector3Normalize(Vector3RotateByQuaternion(phys.direction, q));
+
+			printf("COLLISION: speed: %f %f %f --> ", phys.speed.x, phys.speed.y, phys.speed.z);
+			phys.speed = Vector3RotateByQuaternion(phys.speed, q);
+			printf("%f %f %f\n", phys.speed.x, phys.speed.y, phys.speed.z);
+			phys.travel.pt1 = interPt;
 		}
 	}
-	
-	if(!collision)
-		phys.direction = Vector3Normalize(Vector3Add(phys.direction, Vector3Scale(G, ellapsedTime)));
 }
 
-void SphereGravitationalTranslation(Quad quads[], float y, float ellapsedTime, Physics& phys)
+void UpdatePhysics(Sphere sphere, Quad quads[], float ellapsedTime, Physics& phys)
 {
-	GetNewVelocity(quads, ellapsedTime, phys);
-	phys.speed = sqrtf(2 * ((phys.energy - phys.mass * g * y) / phys.mass));
-	phys.movement = Vector3Scale(Vector3Scale(phys.direction, phys.speed), ellapsedTime);
-}
+	ApplyGravity(sphere, ellapsedTime, phys);
+	ApplyCollisions(sphere, quads, ellapsedTime, phys);
 
-void MoveSphere(Physics phys, Sphere& sphere)
-{
-	sphere.ref.origin = Vector3Add(sphere.ref.origin, phys.movement);
-	phys.position = sphere.ref.origin;
+	phys.speed = Vector3Normalize(phys.speed);
+	phys.speed = Vector3Scale(phys.speed, phys.speedValue * ellapsedTime);
+	phys.travel.pt2 = Vector3Add(sphere.ref.origin, phys.speed);
 }
