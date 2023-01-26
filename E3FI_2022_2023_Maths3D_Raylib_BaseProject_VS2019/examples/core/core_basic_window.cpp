@@ -166,6 +166,8 @@ int main(int argc, char* argv[])
 			Disk disk = { ref, 2 };
 			Box box = { ref,{10,1,10} };
 			Cylinder cylinder = { ref, 10, 1 };
+			InfiniteCylinder infCyl = { ref, 10 };
+			Capsule capsule = { ref, 5, 1 };
 
 			//THE SEGMENT
 			DrawLine3D(segment.pt1, segment.pt2, BLACK);
