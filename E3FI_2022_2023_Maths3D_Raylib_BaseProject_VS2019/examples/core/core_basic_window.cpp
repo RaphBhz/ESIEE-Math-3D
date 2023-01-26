@@ -175,9 +175,15 @@ int main(int argc, char* argv[])
 			// TEST INTERSECTION
 			//MyDrawQuad(quad);
 			//MyDrawDisk(disk);
-			MyDrawCylinder(cylinder);
+			//MyDrawCylinder(cylinder);
+			MyDrawBox(box);
 
-			if (IntersectSegmentInfiniteCylinder(segment, cylinder, t, interPt, interNormal))
+			/*if (IntersectSegmentInfiniteCylinder(segment, cylinder, t, interPt, interNormal))
+			{
+				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
+				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
+			}*/
+			if (IntersectSegmentBox(segment, box, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);

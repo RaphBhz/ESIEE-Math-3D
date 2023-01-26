@@ -84,35 +84,44 @@ bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, V
 }
 
 bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vector3& interNormal) {
-	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
-	quad.ref.Translate({ 0, box.extents.y, 0 });
+	//float t[];
+
+	Quad quad = { box.ref, {box.extents.x/2, 0, box.extents.z/2 } };
+	quad.ref.Translate({ 0, box.extents.y/2, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
 
 	// Face 2
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad = { box.ref,{box.extents.x/2, 0, box.extents.y/2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
-	quad.ref.Translate({ 0, 0, box.extents.z });
+	quad.ref.Translate({ 0, 0, box.extents.z/2 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	
 	// Face 3
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad = { box.ref,{box.extents.x/2, 0, box.extents.y/2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
-	quad.ref.Translate({ 0, 0, -box.extents.z });
+	quad.ref.Translate({ 0, 0, -box.extents.z/2 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	
 	// Face 4
-	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.x/2, 0, box.extents.z/2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
-	quad.ref.Translate({ 0, -box.extents.y, 0 });
+	quad.ref.Translate({ 0, -box.extents.y/2, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	
 	// Face 5
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.y/2, 0, box.extents.z/2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	quad.ref.Translate({ -box.extents.x, 0, 0 });
+	quad.ref.Translate({ -box.extents.x/2, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	
 	// Face 6
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.y/2, 0, box.extents.z/2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
-	quad.ref.Translate({ box.extents.x, 0, 0 });
+	quad.ref.Translate({ box.extents.x/2, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+
+	
+
 }
 
 bool IntersectSegmentInfiniteCylinder(Segment seg, Cylinder cylinder, float& t, Vector3& interPt, Vector3& interNormal)
