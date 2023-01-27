@@ -627,37 +627,37 @@ void MyDrawPolygonRoundedBox(RoundedBox roundedBox, int nSectors, Color color = 
 
 	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
-	offset = GlobalToLocalVect({ -quadLength.x, 0, 0 }, roundedBox.ref);
+	offset = Vector3RotateByQuaternion({ -quadLength.x, 0, 0 }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, PI/2));
 	MyDrawPolygonQuad(quad, color);
 
 	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.z };
-	offset = GlobalToLocalVect({ 0, -quadLength.y, 0 }, roundedBox.ref);
+	offset = Vector3RotateByQuaternion({ 0, -quadLength.y, 0 }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, PI));
-	MyDrawPolygonQuad(quad, RED);
+	MyDrawPolygonQuad(quad, color);
 
 	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
-	offset = GlobalToLocalVect({ quadLength.x, 0, 0 }, roundedBox.ref);
+	offset = Vector3RotateByQuaternion({ quadLength.x, 0, 0 }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, 3*PI / 2));
 	MyDrawPolygonQuad(quad, color);
 
 	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.y };
-	offset = GlobalToLocalVect({ 0, 0, quadLength.z }, roundedBox.ref);
+	offset = Vector3RotateByQuaternion({ 0, 0, quadLength.z }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, PI/2));
-	MyDrawPolygonQuad(quad, RED);
+	MyDrawPolygonQuad(quad, color);
 
 	quad.ref = roundedBox.ref;
-	offset = GlobalToLocalVect({ 0, 0, -quadLength.z * 2 }, roundedBox.ref);
+	offset = Vector3RotateByQuaternion({ 0, 0, -quadLength.z }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, PI));
-	MyDrawPolygonQuad(quad, RED);
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, 3*PI/2));
+	MyDrawPolygonQuad(quad, color);
 
 	Cylinder cylinder = { roundedBox.ref, roundedBox.extents.y, roundedBox.radius };
 	offset = { roundedBox.extents.x, 0, roundedBox.extents.z };
@@ -774,45 +774,44 @@ void MyDrawWireframeRoundedBox(RoundedBox roundedBox, int nSectors, Color color 
 	};
 
 	// Well, here we go...
-	Quad quad = { roundedBox.ref, roundedBox.extents.x, 0, roundedBox.extents.z };
+	Quad quad = { roundedBox.ref, {roundedBox.extents.x, 0, roundedBox.extents.z } };
 	Vector3 offset = { 0, quadLength.y, 0 };
 	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
-	quad.ref.Translate({ 0, offset.y, 0 });
-	MyDrawWireframeQuad(quad, color);
-
-	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
-	offset = { -quadLength.x, -quadLength.y, 0 };
-	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
 	MyDrawWireframeQuad(quad, color);
 
+	quad.ref = roundedBox.ref;
+	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
+	offset = Vector3RotateByQuaternion({ -quadLength.x, 0, 0 }, roundedBox.ref.q);
+	quad.ref.Translate(offset);
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, PI / 2));
+	MyDrawWireframeQuad(quad, color);
+
+	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.z };
-	offset = { quadLength.x, -quadLength.y, 0 };
-	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
+	offset = Vector3RotateByQuaternion({ 0, -quadLength.y, 0 }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, PI));
 	MyDrawWireframeQuad(quad, color);
 
+	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.y, 0, roundedBox.extents.z };
-	offset = { quadLength.x, quadLength.y, 0 };
-	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
+	offset = Vector3RotateByQuaternion({ quadLength.x, 0, 0 }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, 3 * PI / 2));
 	MyDrawWireframeQuad(quad, color);
 
 	quad.ref = roundedBox.ref;
 	quad.extents = { roundedBox.extents.x, 0, roundedBox.extents.y };
-	offset = { 0, 0, quadLength.z };
-	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
+	offset = Vector3RotateByQuaternion({ 0, 0, quadLength.z }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, PI / 2));
 	MyDrawWireframeQuad(quad, color);
 
-	offset = { 0, 0, -quadLength.z * 2 };
-	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
+	quad.ref = roundedBox.ref;
+	offset = Vector3RotateByQuaternion({ 0, 0, -quadLength.z }, roundedBox.ref.q);
 	quad.ref.Translate(offset);
-	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
+	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, 3 * PI / 2));
 	MyDrawWireframeQuad(quad, color);
 
 	Cylinder cylinder = { roundedBox.ref, roundedBox.extents.y, roundedBox.radius };
@@ -837,7 +836,7 @@ void MyDrawWireframeRoundedBox(RoundedBox roundedBox, int nSectors, Color color 
 	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
 
 	cylinder = { roundedBox.ref, roundedBox.extents.z, roundedBox.radius };
-	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.i, PI / 2));
 
 	offset = { roundedBox.extents.x, -roundedBox.extents.y, 0 };
 	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);
@@ -860,7 +859,7 @@ void MyDrawWireframeRoundedBox(RoundedBox roundedBox, int nSectors, Color color 
 	MyDrawWireframeCylinderPortion(cylinder, nSectors * 4, 3 * PI / 2, 2 * PI, false, color);
 
 	cylinder = { roundedBox.ref, roundedBox.extents.x, roundedBox.radius };
-	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
+	cylinder.ref.RotateByQuaternion(QuaternionFromAxisAngle(roundedBox.ref.k, PI / 2));
 
 	offset = { 0, roundedBox.extents.y, roundedBox.extents.z };
 	offset = Vector3RotateByQuaternion(offset, roundedBox.ref.q);

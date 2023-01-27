@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 			float t;
 
 			Plane plane = {
-				Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0},time * .5f)), 2
+				Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,1,1},time * .5f)), 2
 			};
 			ReferenceFrame ref = {
 				Vector3Scale(plane.n, plane.d),
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
 			Sphere sphere = { ref, 1 };
 			Disk disk = { ref, 2 };
-			Box box = { ref,{10,1,10} };
+			Box box = { ref,{3, 2, 1} };
 			Cylinder cylinder = { ref, 5, 1 };
 			InfiniteCylinder infCyl = { ref, 1 };
 			Capsule capsule = { ref, 3, 1 };
