@@ -1,6 +1,7 @@
 #pragma once
 #include "My3DPrimitives.h"
-#include<array> 
+#include<vector> 
+using namespace std;
 float EPSILON = powf(10., -6);
 
 bool IntersectLinePlane(Line line, Plane plane, float& t, Vector3& interPt, Vector3& interNormal)
@@ -88,14 +89,16 @@ struct tQuad {
 	Quad quad;
 };
 bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vector3& interNormal) {
-	tQuad arrIntersectSeg[sizeof(float) * 6 + sizeof(Quad) * 6];
-	int lenArrIntersectSeg = 0;
+	
+	vector <tQuad> arrIntersectSeg;
 
+
+	// Face 1
 	Quad quad = { box.ref, {box.extents.x / 2, 0, box.extents.z / 2 } };
 	quad.ref.Translate({ 0, box.extents.y / 2, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[0] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
+
 	};
 
 	// Face 2
@@ -103,8 +106,8 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
 	quad.ref.Translate({ 0, 0, box.extents.z / 2 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[1] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
+
 	};
 
 	// Face 3
@@ -112,8 +115,8 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
 	quad.ref.Translate({ 0, 0, -box.extents.z / 2 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[2] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
+
 	};
 
 	// Face 4
@@ -121,8 +124,8 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
 	quad.ref.Translate({ 0, -box.extents.y / 2, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[3] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
+
 	};
 
 	// Face 5
@@ -130,8 +133,8 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
 	quad.ref.Translate({ -box.extents.x / 2, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[4] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
+
 	};
 
 	// Face 6
@@ -139,19 +142,19 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
 	quad.ref.Translate({ box.extents.x / 2, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
-		arrIntersectSeg[5] = { t, quad };
-		lenArrIntersectSeg++;
+		arrIntersectSeg.push_back({ t, quad });
 	};
 
+	
 
 	// if there is nothing in the arrIntersectSeg array it mean that there is no collide
-	if (lenArrIntersectSeg == 0) return false;
+	if (arrIntersectSeg.size() == 0) return false;
 
 	float minT = arrIntersectSeg[0].t;
 	int minFaceIndex = 0;
 
 	// we get the face who have the lower t
-	for (int i = 0;i <= lenArrIntersectSeg;i++) {
+	for (int i = 0;i < arrIntersectSeg.size();i++) {
 		if (minT <= arrIntersectSeg[i].t) continue;
 		minT = arrIntersectSeg[i].t;
 		minFaceIndex = i;
