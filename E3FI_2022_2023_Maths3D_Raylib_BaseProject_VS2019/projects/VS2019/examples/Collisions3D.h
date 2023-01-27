@@ -94,53 +94,53 @@ bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vecto
 
 
 	// Face 1
-	Quad quad = { box.ref, {box.extents.x / 2, 0, box.extents.z / 2 } };
-	quad.ref.Translate({ 0, box.extents.y / 2, 0 });
+	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
+	quad.ref.Translate({ 0, box.extents.y, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 
 	};
 
 	// Face 2
-	quad = { box.ref,{box.extents.x / 2, 0, box.extents.y / 2} };
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
-	quad.ref.Translate({ 0, 0, box.extents.z / 2 });
+	quad.ref.Translate({ 0, 0, box.extents.z });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 
 	};
 
 	// Face 3
-	quad = { box.ref,{box.extents.x / 2, 0, box.extents.y / 2} };
+	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
-	quad.ref.Translate({ 0, 0, -box.extents.z / 2 });
+	quad.ref.Translate({ 0, 0, -box.extents.z });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 
 	};
 
 	// Face 4
-	quad = { box.ref,{box.extents.x / 2, 0, box.extents.z / 2} };
+	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
-	quad.ref.Translate({ 0, -box.extents.y / 2, 0 });
+	quad.ref.Translate({ 0, -box.extents.y, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 
 	};
 
 	// Face 5
-	quad = { box.ref,{box.extents.y / 2, 0, box.extents.z / 2} };
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	quad.ref.Translate({ -box.extents.x / 2, 0, 0 });
+	quad.ref.Translate({ -box.extents.x, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 
 	};
 
 	// Face 6
-	quad = { box.ref,{box.extents.y / 2, 0, box.extents.z / 2} };
+	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
-	quad.ref.Translate({ box.extents.x / 2, 0, 0 });
+	quad.ref.Translate({ box.extents.x, 0, 0 });
 	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
 		arrIntersectSeg.push_back({ t, quad });
 	};

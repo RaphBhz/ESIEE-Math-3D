@@ -178,9 +178,9 @@ int main(int argc, char* argv[])
 			// TEST INTERSECTION
 			//MyDrawQuad(quad);
 			//MyDrawDisk(disk);
-			MyDrawRoundedBox(roundedBox);
+			MyDrawBox(box);
 
-			if (IntersectSegmentCapsule(segment, capsule, t, interPt, interNormal))
+			if (IntersectSegmentBox(segment, box, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
