@@ -165,9 +165,9 @@ int main(int argc, char* argv[])
 			Sphere sphere = { ref, 1 };
 			Disk disk = { ref, 2 };
 			Box box = { ref,{3, 2, 1} };
-			Cylinder cylinder = { ref, 5, 1 };
+			Cylinder cylinder = { ref, 1, 1 };
 			InfiniteCylinder infCyl = { ref, 1 };
-			Capsule capsule = { ref, 3, 1 };
+			Capsule capsule = { ref, 0.2, 0.7 };
 			RoundedBox roundedBox = { ref, {1, 2, 1}, 1 };
 
 			//THE SEGMENT
@@ -178,14 +178,13 @@ int main(int argc, char* argv[])
 			// TEST INTERSECTION
 			//MyDrawQuad(quad);
 			//MyDrawDisk(disk);
-			MyDrawBox(box);
+			MyDrawRoundedBox(roundedBox);
 
-			if (IntersectSegmentBox(segment, box, t, interPt, interNormal))
+			if (IntersectSegmentRoundedBox(segment, roundedBox, t, interPt, interNormal))
 			{
 				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
 				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
 			}
-
 
 			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
