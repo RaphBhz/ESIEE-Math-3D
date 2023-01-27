@@ -1,6 +1,6 @@
 #pragma once
 #include "My3DPrimitives.h"
-
+#include<array> 
 float EPSILON = powf(10., -6);
 
 bool IntersectLinePlane(Line line, Plane plane, float& t, Vector3& interPt, Vector3& interNormal)
@@ -83,36 +83,84 @@ bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, V
 	return true;
 }
 
+struct tQuad {
+	float t;
+	Quad quad;
+};
 bool IntersectSegmentBox(Segment seg, Box box, float& t, Vector3& interPt, Vector3& interNormal) {
-	Quad quad = { box.ref, {box.extents.x, 0, box.extents.z } };
-	quad.ref.Translate({ 0, box.extents.y, 0 });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	tQuad arrIntersectSeg[sizeof(float) * 6 + sizeof(Quad) * 6];
+	int lenArrIntersectSeg = 0;
+
+	Quad quad = { box.ref, {box.extents.x / 2, 0, box.extents.z / 2 } };
+	quad.ref.Translate({ 0, box.extents.y / 2, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[0] = { t, quad };
+		lenArrIntersectSeg++;
+	};
 
 	// Face 2
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad = { box.ref,{box.extents.x / 2, 0, box.extents.y / 2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI / 2));
-	quad.ref.Translate({ 0, 0, box.extents.z });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	quad.ref.Translate({ 0, 0, box.extents.z / 2 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[1] = { t, quad };
+		lenArrIntersectSeg++;
+	};
+
 	// Face 3
-	quad = { box.ref,{box.extents.x, 0, box.extents.y} };
+	quad = { box.ref,{box.extents.x / 2, 0, box.extents.y / 2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), 3 * PI / 2));
-	quad.ref.Translate({ 0, 0, -box.extents.z });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	quad.ref.Translate({ 0, 0, -box.extents.z / 2 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[2] = { t, quad };
+		lenArrIntersectSeg++;
+	};
+
 	// Face 4
-	quad = { box.ref,{box.extents.x, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.x / 2, 0, box.extents.z / 2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 1,0,0 }), PI));
-	quad.ref.Translate({ 0, -box.extents.y, 0 });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	quad.ref.Translate({ 0, -box.extents.y / 2, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[3] = { t, quad };
+		lenArrIntersectSeg++;
+	};
+
 	// Face 5
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.y / 2, 0, box.extents.z / 2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	quad.ref.Translate({ -box.extents.x, 0, 0 });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	quad.ref.Translate({ -box.extents.x / 2, 0, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[4] = { t, quad };
+		lenArrIntersectSeg++;
+	};
+
 	// Face 6
-	quad = { box.ref,{box.extents.y, 0, box.extents.z} };
+	quad = { box.ref,{box.extents.y / 2, 0, box.extents.z / 2} };
 	quad.ref.RotateByQuaternion(QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 3 * PI / 2));
-	quad.ref.Translate({ box.extents.x, 0, 0 });
-	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) return true;
+	quad.ref.Translate({ box.extents.x / 2, 0, 0 });
+	if (IntersectSegmentQuad(seg, quad, t, interPt, interNormal)) {
+		arrIntersectSeg[5] = { t, quad };
+		lenArrIntersectSeg++;
+	};
+
+
+	// if there is nothing in the arrIntersectSeg array it mean that there is no collide
+	if (lenArrIntersectSeg == 0) return false;
+
+	float minT = arrIntersectSeg[0].t;
+	int minFaceIndex = 0;
+
+	// we get the face who have the lower t
+	for (int i = 0;i <= lenArrIntersectSeg;i++) {
+		if (minT <= arrIntersectSeg[i].t) continue;
+		minT = arrIntersectSeg[i].t;
+		minFaceIndex = i;
+	}
+
+	IntersectSegmentQuad(seg, arrIntersectSeg[minFaceIndex].quad, minT, interPt, interNormal);
+
+	return true;
+
 }
 
 bool IntersectSegmentInfiniteCylinder(Segment seg, InfiniteCylinder cylinder, float& t, Vector3& interPt, Vector3& interNormal)
@@ -214,7 +262,7 @@ bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector
 	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
-		if (interCyl.theta >= PI/2 && interCyl.theta <= PI)
+		if (interCyl.theta >= PI / 2 && interCyl.theta <= PI)
 			return true;
 	}
 	cap.ref.origin.x -= rndBox.extents.x;
@@ -222,7 +270,7 @@ bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector
 	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
-		if (interCyl.theta >= PI && interCyl.theta <= (3*PI) / 2)
+		if (interCyl.theta >= PI && interCyl.theta <= (3 * PI) / 2)
 			return true;
 	}
 	cap.ref.origin.z += rndBox.extents.z;
@@ -230,7 +278,7 @@ bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector
 	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
-		if (interCyl.theta >= (3*PI)/2 && interCyl.theta <= 2*PI)
+		if (interCyl.theta >= (3 * PI) / 2 && interCyl.theta <= 2 * PI)
 			return true;
 	}
 }
