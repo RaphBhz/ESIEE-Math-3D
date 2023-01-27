@@ -126,7 +126,7 @@ bool IntersectSegmentInfiniteCylinder(Segment seg, InfiniteCylinder cylinder, fl
 
 	float a = powf(Vector3Length(AB), 2) - (powf(ABPQ, 2) / PQ2);
 	float b = 2 * Vector3DotProduct(AB, PA) - (2 * PAPQ * ABPQ) / PQ2;
-	float c = powf(Vector3Length(PA), 2) - (powf(PAPQ, 2) / powf(Vector3Length(PQ), 2)) - powf(cylinder.radius, 2);
+	float c = powf(Vector3Length(PA), 2) - (powf(PAPQ, 2) / PQ2) - powf(cylinder.radius, 2);
 
 	float delta = powf(b, 2) - 4 * a * c;
 
