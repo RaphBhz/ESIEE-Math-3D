@@ -72,32 +72,26 @@ Spherical CartesianToSpherical(Vector3 cart) {
 
 Vector3 LocalToGlobalVect(Vector3 localVect, ReferenceFrame localRef)
 {
-	Vector3 globalVect = { localRef.i.x * localVect.x, localRef.j.y * localVect.y, localRef.k.z * localVect.z };
-	Vector3RotateByQuaternion(globalVect, { -localRef.q.x, -localRef.q.y, -localRef.q.z, -localRef.q.w });
+	Vector3 globalVect = Vector3Add(Vector3Add(Vector3Multiply(localVect, localRef.i), Vector3Multiply(localVect, localRef.j)), Vector3Multiply(localVect, localRef.k));
 
 	return globalVect;
 }
 
 Vector3 GlobalToLocalVect(Vector3 globalVect, ReferenceFrame localRef)
 {
-	Vector3 localVect = { localRef.i.x * globalVect.x, localRef.j.y * globalVect.y, localRef.k.z * globalVect.z };
-	Vector3RotateByQuaternion(localVect, localRef.q);
+	Vector3 localVect = { Vector3DotProduct(globalVect, localRef.i), Vector3DotProduct(globalVect, localRef.j), Vector3DotProduct(globalVect, localRef.k) };
 
 	return localVect;
 }
 
 Vector3 LocalToGlobalPos(Vector3 localPos, ReferenceFrame localRef)
 {
-	Vector3 base = { localRef.i.x, localRef.j.y, localRef.k.z };
-
-	return Vector3Add(Vector3Multiply(localPos, base), localRef.origin);
+	return Vector3Add(localPos, localRef.origin);
 }
 
 Vector3 GlobalToLocalPos(Vector3 globalPos, ReferenceFrame localRef)
 {
-	Vector3 base = { 1/localRef.i.x, 1/localRef.j.y, 1/localRef.k.z };
-
-	return Vector3Multiply(Vector3Subtract(globalPos, localRef.origin), base);
+	return Vector3Subtract(globalPos, localRef.origin);
 }
 
 Vector3 ProjectedPointOnLine(Vector3 linePt, Vector3 lineUnitDir, Vector3 pt)
