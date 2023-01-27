@@ -29,6 +29,7 @@
 #include "../../projects/VS2019/examples/Draw3D.h"
 #include "../../projects/VS2019/examples/Referentials3D.h"
 #include "../../projects/VS2019/examples/Collisions3D.h"
+#include "../../projects/VS2019/examples/Physics3D.h"
 
 #if defined(PLATFORM_DESKTOP)
 #define GLSL_VERSION            330
@@ -63,6 +64,69 @@ void MyUpdateOrbitalCamera(Camera* camera, float deltaTime)
 	camera->position = SphericalToCartesian(sphPos);
 }
 
+void testDrawing()
+{
+	// DRAWING
+// QUAD DISPLAY TEST
+//ReferenceFrame ref = ReferenceFrame(
+	//{ 0,1,0 },
+	//QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+
+/*Quad quad = { ref,{1, 0, 1} };
+Box box = { ref, {1, 2, 3} };
+Disk disk = { ref, 2 };
+Sphere sphere = { ref, 4 };
+Cylinder cylinder = { ref, 3, 3 };
+Capsule capsule = { ref, 3, 3 };
+RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };*/
+	// TESTING DRAWING
+// MyDrawQuad(quad);
+// MyDrawBox(box);
+// MyDrawDisk(disk);
+// MyDrawSphere(sphere, 50, 50);
+// MyDrawCylinder(cylinder, 50);
+// MyDrawSpherePortion(sphere, 40, 40, 0, PI, 0, PI / 2);
+// MyDrawCapsule(capsule);
+// MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
+// MyDrawRoundedBox(roundedBox, 10);
+}
+
+void testIntersections()
+{
+	//TESTS INTERSECTIONS
+	Vector3 interPt;
+	Vector3 interNormal;
+	float t;
+
+	Plane plane = {
+		Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0}, 0)), 0
+	};
+	ReferenceFrame ref = {
+		Vector3Scale(plane.n, plane.d),
+		QuaternionFromVector3ToVector3({0,1,0},plane.n)
+	};
+	Quad quad = { ref, {10,1,10} };
+	Segment segment = { {-5,8,0},{5,-8,3} };
+	Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
+	Sphere sphere = { ref, 1 };
+	Disk disk = { ref, 2 };
+
+	//THE SEGMENT
+	DrawLine3D(segment.pt1, segment.pt2, BLACK);
+	MyDrawSphere({ {segment.pt1,QuaternionIdentity()},.15f }, 16, 8, true, true, RED);
+	MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
+
+	// TEST INTERSECTION
+	//MyDrawQuad(quad);
+	MyDrawSphere(sphere);
+
+	if (IntersectSegmentSphere(segment, sphere, t, interPt, interNormal))
+	{
+		MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
+		DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	// Initialization
@@ -85,19 +149,14 @@ int main(int argc, char* argv[])
 	camera.type = CAMERA_PERSPECTIVE;
 	SetCameraMode(camera, CAMERA_CUSTOM);  // Set an orbital camera mode
 
-	// TESTING MATHS TOOLS - use breakpoints to verify values
-	// Vector3 test = { 8, 3, 4 };
-	// test = GlobalToLocalVect(test, ref);
-	// test = LocalToGlobalVect(test, ref);
-	//ReferenceFrame ref = ReferenceFrame(
-	//	{ 0,1,0 },
-	//	QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI / 2));
-	//Box testBox = { ref, {4, 5, 1} };
-	//Vector3 test = { 2, 1, 0 };
-	//bool res = IsPointInsideBox(testBox, test);
-	//test.z += 10;
-	//res = IsPointInsideBox(testBox, test);
-
+	ReferenceFrame ref = ReferenceFrame(
+		{ 0,10,0 },
+		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
+	);
+	Sphere sphere = { ref, 0.2 };
+	ref.origin.y = 0;
+	Quad quads[] = { {ref, {4, 4, 4}} };
+	Physics spherePhysics = InitPhysics(sphere, { 0, -1, 0 }, 0.01, 0.1);
 
 	//--------------------------------------------------------------------------------------
 
@@ -122,69 +181,17 @@ int main(int argc, char* argv[])
 
 		BeginMode3D(camera);
 		{
-			// DRAWING
-			// QUAD DISPLAY TEST
-			//ReferenceFrame ref = ReferenceFrame(
-				//{ 0,1,0 },
-				//QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), PI/2));
+			// testDrawing();
+			// testIntersections();
 
-			/*Quad quad = { ref,{1, 0, 1} };
-			Box box = { ref, {1, 2, 3} };
-			Disk disk = { ref, 2 };
-			Sphere sphere = { ref, 4 };
-			Cylinder cylinder = { ref, 3, 3 };
-			Capsule capsule = { ref, 3, 3 };
-			RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };*/
+			// TESTING PHYSICS
+			UpdatePhysics(sphere, quads, deltaTime, spherePhysics);
+			sphere.ref.origin = Vector3Add(sphere.ref.origin, spherePhysics.speed);
+			MyDrawSphere(sphere, 40, 40, true, true, RED);
 
-			// TESTING DRAWING
-			// MyDrawQuad(quad);
-			// MyDrawBox(box);
-			// MyDrawDisk(disk);
-			// MyDrawSphere(sphere, 50, 50);
-			// MyDrawCylinder(cylinder, 50);
-			// MyDrawSpherePortion(sphere, 40, 40, 0, PI, 0, PI / 2);
-			// MyDrawCapsule(capsule);
-			// MyDrawCylinderPortion(cylinder, 50, PI / 2, PI);
-			// MyDrawRoundedBox(roundedBox, 10);
+			printf("position: %f %f %f\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
 
-			//TESTS INTERSECTIONS
-			Vector3 interPt;
-			Vector3 interNormal;
-			float t;
-
-			Plane plane = {
-				Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,1,1},time * .5f)), 2
-			};
-			ReferenceFrame ref = {
-				Vector3Scale(plane.n, plane.d),
-				QuaternionFromVector3ToVector3({0,1,0},plane.n)
-			};
-			Quad quad = { ref, {10,1,10} };
-			Segment segment = { {-5,8,0},{5,-8,3} };
-			Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
-			Sphere sphere = { ref, 1 };
-			Disk disk = { ref, 2 };
-			Box box = { ref,{3, 2, 1} };
-			Cylinder cylinder = { ref, 1, 1 };
-			InfiniteCylinder infCyl = { ref, 1 };
-			Capsule capsule = { ref, 0.2, 0.7 };
-			RoundedBox roundedBox = { ref, {1, 2, 1}, 1 };
-
-			//THE SEGMENT
-			DrawLine3D(segment.pt1, segment.pt2, BLACK);
-			MyDrawSphere({ {segment.pt1,QuaternionIdentity()},.15f }, 16, 8, true, true, RED);
-			MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
-
-			// TEST INTERSECTION
-			//MyDrawQuad(quad);
-			//MyDrawDisk(disk);
-			MyDrawRoundedBox(roundedBox);
-
-			if (IntersectSegmentRoundedBox(segment, roundedBox, t, interPt, interNormal))
-			{
-				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
-				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
-			}
+			for(Quad q : quads) MyDrawQuad(q);
 
 			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
