@@ -60,6 +60,7 @@ bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt
 
 }
 
+//NEEDS FIX
 bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, Vector3& interNormal)
 {
 	Vector3 AB = Vector3Subtract(seg.pt2, seg.pt1);
