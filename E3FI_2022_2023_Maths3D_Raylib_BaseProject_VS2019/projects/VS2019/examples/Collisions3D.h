@@ -246,10 +246,20 @@ bool IntersectSegmentCylinder(Segment seg, Cylinder cyl, float& t, Vector3& inte
 
 bool IntersectSegmentCapsule(Segment seg, Capsule cap, float& t, Vector3& interPt, Vector3& interNormal)
 {
+	bool collision = false;
+	float minT;
+	Vector3 minInterPt;
+	Vector3 minInterNormal;
+
 	Cylinder cyl = { cap.ref, cap.halfHeight, cap.radius };
 
-	if (IntersectSegmentCylinder(seg, cyl, t, interPt, interNormal))
-		return true;
+	if (IntersectSegmentCylinder(seg, cyl, t, interPt, interNormal) && (!collision || t < minT))
+	{
+		collision = true;
+		minT = t;
+		minInterNormal = interNormal;
+		minInterPt = interPt;
+	}
 
 	Sphere upperSphere = { cap.ref, cap.radius };
 	Sphere underSphere = { cap.ref, cap.radius };
@@ -258,18 +268,40 @@ bool IntersectSegmentCapsule(Segment seg, Capsule cap, float& t, Vector3& interP
 	upperSphere.ref.origin = Vector3Add(upperSphere.ref.origin, offset);
 	underSphere.ref.origin = Vector3Subtract(underSphere.ref.origin, offset);
 
-	if (IntersectSegmentSphere(seg, upperSphere, t, interPt, interNormal))
+	//MyDrawSpherePortion(upperSphere, 30, 30, 0, 2 * PI, 0, PI / 2, true, true, BLUE);
+	//MyDrawSpherePortion(underSphere, 30, 30, 0, 2 * PI, PI / 2, PI, true, true, BLUE);
+
+	if (IntersectSegmentSphere(seg, upperSphere, t, interPt, interNormal) && (!collision || t < minT))
 	{
 		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.phi >= 0 && interSph.phi <= PI / 2) return true;
+		if (interSph.phi >= 0 && interSph.phi <= PI / 2)
+		{
+			collision = true;
+			minT = t;
+			minInterNormal = interNormal;
+			minInterPt = interPt;
+		}
 	}
-	if (IntersectSegmentSphere(seg, underSphere, t, interPt, interNormal))
+	if (IntersectSegmentSphere(seg, underSphere, t, interPt, interNormal) && (!collision || t < minT))
 	{
 		Spherical interSph = CartesianToSpherical(interPt);
-		if (interSph.phi >= 0 && interSph.phi <= PI / 2) return true;
+		if (interSph.phi >= 0 && interSph.phi <= PI / 2)
+		{
+			collision = true;
+			minT = t;
+			minInterNormal = interNormal;
+			minInterPt = interPt;
+		}
 	}
 
-	return false;
+	if (collision)
+	{
+		t = minT;
+		interPt = minInterPt;
+		interNormal = minInterNormal;
+	}
+
+	return collision;
 }
 
 bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector3& interPt, Vector3& interNormal)
