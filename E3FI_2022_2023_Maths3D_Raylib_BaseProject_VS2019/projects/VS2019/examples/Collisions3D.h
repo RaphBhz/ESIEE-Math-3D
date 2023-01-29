@@ -60,7 +60,6 @@ bool IntersectSegmentDisk(Segment segment, Disk disk, float& t, Vector3& interPt
 
 }
 
-//NEEDS FIX
 bool IntersectSegmentSphere(Segment seg, Sphere s, float& t, Vector3& interPt, Vector3& interNormal)
 {
 	Vector3 AB = Vector3Subtract(seg.pt2, seg.pt1);
@@ -218,17 +217,15 @@ bool IntersectSegmentInfiniteCylinder(Segment seg, InfiniteCylinder cylinder, fl
 	float t1 = (-b - d) / (2 * a);
 	float t2 = (-b + d) / (2 * a);
 
-	if (t1 < 0)
-		t = t2;
-	else
-		t = t1;
+	t = fmin(t1, t2);
+	t = (t < 0 || t > 1) ? fmax(t1, t2) : t;
 
 	if (t < 0 || t > 1) return false;
 
 	Vector3 OI = Vector3Subtract(interPt, cylinder.ref.origin);
 
 	interPt = Vector3Add(seg.pt1, Vector3Scale(AB, t));
-	interNormal = Vector3Scale(OI, 1 / Vector3Length(OI));
+	interNormal = Vector3Normalize(Vector3Subtract(interPt, cylinder.ref.origin));
 
 	return true;
 }
@@ -238,7 +235,7 @@ bool IntersectSegmentCylinder(Segment seg, Cylinder cyl, float& t, Vector3& inte
 	InfiniteCylinder infCyl = { cyl.ref, cyl.radius };
 	if (IntersectSegmentInfiniteCylinder(seg, infCyl, t, interPt, interNormal))
 	{
-		Vector3 localInterPt = GlobalToLocalPos(interPt, cyl.ref);
+		Vector3 localInterPt = GlobalToLocalPos(interPt, cyl.ref); 
 		if (localInterPt.y <= cyl.halfHeight && localInterPt.y >= -cyl.halfHeight)
 			return true;
 	}
@@ -268,9 +265,6 @@ bool IntersectSegmentCapsule(Segment seg, Capsule cap, float& t, Vector3& interP
 	offset = Vector3RotateByQuaternion(offset, cap.ref.q);
 	upperSphere.ref.origin = Vector3Add(upperSphere.ref.origin, offset);
 	underSphere.ref.origin = Vector3Subtract(underSphere.ref.origin, offset);
-
-	//MyDrawSpherePortion(upperSphere, 30, 30, 0, 2 * PI, 0, PI / 2, true, true, BLUE);
-	//MyDrawSpherePortion(underSphere, 30, 30, 0, 2 * PI, PI / 2, PI, true, true, BLUE);
 
 	if (IntersectSegmentSphere(seg, upperSphere, t, interPt, interNormal) && (!collision || t < minT))
 	{
@@ -473,6 +467,150 @@ bool IntersectSegmentRoundedBox(Segment seg, RoundedBox rndBox, float& t, Vector
 	{
 		Cylindrical interCyl = CartesianToCylindrical(interPt);
 		if ((interCyl.theta >= (3 * PI) / 2 && interCyl.theta <= 2 * PI) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	cap = { rndBox.ref, rndBox.extents.x, rndBox.radius };
+	cap.ref.RotateByQuaternion(QuaternionFromAxisAngle(cap.ref.k, PI / 2));
+	offset = { 0, -rndBox.extents.y, rndBox.extents.z };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	offset = { 0, rndBox.extents.y * 2 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	cap = { rndBox.ref, rndBox.extents.x, rndBox.radius };
+	cap.ref.RotateByQuaternion(QuaternionFromAxisAngle(cap.ref.k, PI / 2));
+	offset = { 0, -rndBox.extents.y, -rndBox.extents.z };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	offset = { 0, rndBox.extents.y * 2 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	cap = { rndBox.ref, rndBox.extents.z, rndBox.radius };
+	cap.ref.RotateByQuaternion(QuaternionFromAxisAngle(cap.ref.i, PI / 2));
+	offset = { rndBox.extents.x, -rndBox.extents.y, 0 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	offset = { 0, rndBox.extents.y * 2 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	cap = { rndBox.ref, rndBox.extents.z, rndBox.radius };
+	cap.ref.RotateByQuaternion(QuaternionFromAxisAngle(cap.ref.i, PI / 2));
+	offset = { -rndBox.extents.x, -rndBox.extents.y, 0 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
+			(!collision || t < minT))
+		{
+			minT = t;
+			minInterPt = interPt;
+			minInterNormal = interNormal;
+			collision = true;
+		}
+	}
+
+	offset = { 0, rndBox.extents.y * 2 };
+	offset = Vector3RotateByQuaternion(offset, rndBox.ref.q);
+	cap.ref.Translate(offset);
+
+	if (IntersectSegmentCapsule(seg, cap, t, interPt, interNormal))
+	{
+		Cylindrical interCyl = CartesianToCylindrical(interPt);
+		if ((interCyl.theta >= 0 && interCyl.theta <= PI / 2) &&
 			(!collision || t < minT))
 		{
 			minT = t;

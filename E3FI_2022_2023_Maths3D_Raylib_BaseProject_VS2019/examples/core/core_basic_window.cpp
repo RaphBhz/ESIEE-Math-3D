@@ -64,7 +64,7 @@ void MyUpdateOrbitalCamera(Camera* camera, float deltaTime)
 	camera->position = SphericalToCartesian(sphPos);
 }
 
-void testDrawing()
+void TestDrawing()
 {
 	// DRAWING
 // QUAD DISPLAY TEST
@@ -91,7 +91,7 @@ RoundedBox roundedBox = { ref, {2, 1, 2 }, 1 };*/
 // MyDrawRoundedBox(roundedBox, 10);
 }
 
-void testIntersections()
+void TestIntersections(float time)
 {
 	//TESTS INTERSECTIONS
 	Vector3 interPt;
@@ -99,33 +99,36 @@ void testIntersections()
 	float t;
 
 	Plane plane = {
-		Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({1,0,0}, 0)), 0
+		Vector3RotateByQuaternion({0,1,0}, QuaternionFromAxisAngle({0.3,1,0.5}, time)), 0
 	};
 	ReferenceFrame ref = {
 		Vector3Scale(plane.n, plane.d),
 		QuaternionFromVector3ToVector3({0,1,0},plane.n)
 	};
 	Quad quad = { ref, {10,1,10} };
-	Segment segment = { {-5,8,0},{5,-8,3} };
+	Segment segment = { {-3,6,-4},{5,-10,3} };
 	Line line = { segment.pt1,Vector3Subtract(segment.pt2,segment.pt1) };
 	Sphere sphere = { ref, 1 };
 	Disk disk = { ref, 2 };
+	Capsule capsule = { ref, 1, 2};
+	Cylinder cylinder = { ref, 2, 1 };
+	InfiniteCylinder infiniteCylinder = { ref, 1 };
+	RoundedBox roundedBox = { ref, {2, 1, 1}, 1};
 
 	//THE SEGMENT
 	DrawLine3D(segment.pt1, segment.pt2, BLACK);
 	MyDrawSphere({ {segment.pt1,QuaternionIdentity()},.15f }, 16, 8, true, true, RED);
 	MyDrawSphere({ {segment.pt2,QuaternionIdentity()},.15f }, 16, 8, true, true, GREEN);
 
-			// TEST INTERSECTION
-			//MyDrawQuad(quad);
-			//MyDrawDisk(disk);
-			MyDrawCapsule(capsule);
+	// TEST INTERSECTION
+	MyDrawRoundedBox(roundedBox);
 
-			if (IntersectSegmentCapsule(segment, capsule, t, interPt, interNormal))
-			{
-				MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
-				DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
-			}
+	if (IntersectSegmentRoundedBox(segment, roundedBox, t, interPt, interNormal))
+	{
+		MyDrawSphere({ {interPt,QuaternionIdentity()},.1f }, 16, 8, true, true, RED);
+		DrawLine3D(interPt, Vector3Add(Vector3Scale(interNormal, 1), interPt), RED);
+	}
+}
 
 int main(int argc, char* argv[])
 {
@@ -149,14 +152,50 @@ int main(int argc, char* argv[])
 	camera.type = CAMERA_PERSPECTIVE;
 	SetCameraMode(camera, CAMERA_CUSTOM);  // Set an orbital camera mode
 
+	// SETTING UP PHYSICS PLAYGROUND
 	ReferenceFrame ref = ReferenceFrame(
-		{ 0,10,0 },
+		{ 0,2,0 },
 		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
 	);
-	Sphere sphere = { ref, 0.2 };
-	ref.origin.y = 0;
-	Quad quads[] = { {ref, {4, 4, 4}} };
-	Physics spherePhysics = InitPhysics(sphere, { 0, -1, 0 }, 0.01, 0.1);
+	Sphere sphere = { ref, 1 };
+	Physics spherePhysics = InitPhysics(sphere, { 1, 1, 0 }, { 1, 0, 0 }, 10, PI / 128, 100);
+	std::vector<Box> boxes = {};
+	
+	ref.origin = {0,-0.5,0};
+	boxes.push_back({ ref, {8, 0.5, 8} });
+
+	ref.origin = { 10,2,0 };
+	boxes.push_back({ ref, {0.5, 2, 10} });
+
+	ref.origin = { -10,2,0 };
+	boxes.push_back({ ref, {0.5, 2, 10} });
+
+	ref.origin = { 0,2,-10 };
+	boxes.push_back({ ref, {10, 2, 0.5} });
+
+	ref.origin = { 0,2,10 };
+	boxes.push_back({ ref, {10, 2, 0.5} });
+
+	ref.origin = { 0,1,-8.5 };
+	ref.RotateByQuaternion(QuaternionFromAxisAngle({ 1,0,0 }, PI/4));
+	boxes.push_back({ ref, {10, 0.1, 1} });
+
+	ref.origin = { 0,1,8.5 };
+	ref.RotateByQuaternion(QuaternionFromAxisAngle({ 1,0,0 }, PI/2));
+	boxes.push_back({ ref, {10, 0.1, 1} });
+
+	ref = ReferenceFrame(
+		{ 0,2,0 },
+		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
+	);
+
+	ref.origin = { 8.5,1,0 };
+	ref.RotateByQuaternion(QuaternionFromAxisAngle({ 0,0,1 }, PI / 4));
+	boxes.push_back({ ref, {1, 0.1, 10} });
+
+	ref.origin = { -8.5,1,0 };
+	ref.RotateByQuaternion(QuaternionFromAxisAngle({ 0,0,1 }, PI / 2));
+	boxes.push_back({ ref, {1, 0.1, 10} });
 
 	//--------------------------------------------------------------------------------------
 
@@ -181,17 +220,20 @@ int main(int argc, char* argv[])
 
 		BeginMode3D(camera);
 		{
-			// testDrawing();
-			// testIntersections();
+			// TestDrawing();
+			// TestIntersections(time);
 
 			// TESTING PHYSICS
-			UpdatePhysics(sphere, quads, deltaTime, spherePhysics);
-			sphere.ref.origin = Vector3Add(sphere.ref.origin, spherePhysics.speed);
+			Vector3 newPosition = { sphere.ref.origin };
+
+			if(deltaTime > 0)
+				UpdatePositionByPhysics(boxes, deltaTime, sphere, spherePhysics);
+
+			printf("%f %f %f\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
+
 			MyDrawSphere(sphere, 40, 40, true, true, RED);
 
-			printf("position: %f %f %f\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
-
-			for(Quad q : quads) MyDrawQuad(q);
+			for (int i = 0; i < boxes.size(); i++) MyDrawBox(boxes[i]);
 
 			//CREATING THE 3D REFERENTIAL
 			DrawGrid(20, 1.0f);        // Draw a grid
