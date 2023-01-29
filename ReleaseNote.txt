@@ -1,0 +1,23 @@
+Intro
+
+Le projet de la matière mathématique pour la 3D consiste en la réalisation d'une scène en 3D d'une balle qui tombe dans un "bac" rempli de box. Il met en œuvre des principes fondamentaux de la 3D, mais aussi des principes plus complexe tel que le phénomène de rebond. Le projet a été réalisé durant le cadre des séances "pers" mais aussi lors des séances de travaux dirigés et de travaux pratiques.
+
+→ le chemin relatif d'accès au fichier
+
+→ vos remarques particulières : limitation, bugs connu, voies d'amélioration
+De manière générale, ce projet fut très intéressant pour apprendre les bases de la création 3D de manière virtuelle. En effet, ce dernier nous a permis de nous poser des questions sur notre environnement et comment ceux qui composent notre environnement interagissent. De manière générale, ce projet fut très intéressant pour apprendre les bases de la création 3D de manière virtuelle.
+
+
+→ Qui à fait quoi sur le projet ?
+Raphaël : 
+- Réalisation de la physique de la scène
+- Réalisation de la sphère, rounded box, quad, capsule
+- Réalisation des intersections : segment↔sphère, segment↔capsule, segment↔infiniteCylinder, segment↔quad, segment↔plane, segment↔roundedBox, line↔plane 
+
+Mathieu : 
+- création de la box
+- création du cylindre infini
+- création du disque
+- Réalisation de l'intersection segment↔disque
+- Réalisation de l'intersection segment↔box
+- Réalisation du ReleaseNote.txt
