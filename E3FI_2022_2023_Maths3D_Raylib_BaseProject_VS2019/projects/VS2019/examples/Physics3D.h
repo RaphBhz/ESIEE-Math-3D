@@ -3,7 +3,7 @@
 #include<vector> 
 #pragma once
 float g = 9.80665;
-float BOX_FRICTION = 1.15;
+float BOX_FRICTION = 1000000000000000000;
 Vector3 G = { 0, -g/6, 0 };
 
 struct Physics {
@@ -69,7 +69,7 @@ Vector3 GetSphereNewPositionAndVelocityIfCollidingWithRoundedBox(
 
 	phys.speed = Vector3Reflect(phys.speed, colNormal);
 
-	return Vector3Add(colPos, Vector3Scale(Vector3Normalize(phys.speed), phys.speedValue * timeAfterCol));
+	return Vector3Add(sphere.ref.origin, Vector3Scale(Vector3Normalize(phys.speed), phys.speedValue * timeAfterCol));
 }
 
 bool GetSphereNewPositionAndVelocityIfMultiCollidingWithRoundedBoxes(
@@ -93,6 +93,7 @@ bool GetSphereNewPositionAndVelocityIfMultiCollidingWithRoundedBoxes(
 				minT = t;
 				minInterPt = interPt;
 				minInterNormal = interNormal;
+				collisionT = ellapsedTime* minT;
 				collision = true;
 			}
 		}
@@ -100,11 +101,15 @@ bool GetSphereNewPositionAndVelocityIfMultiCollidingWithRoundedBoxes(
 
 	if (collision)
 	{
+		Vector3 preCollisionMovement = Vector3Normalize(phys.speed);
+		preCollisionMovement = Vector3Scale(phys.speed, phys.speedValue * collisionT);
+		sphere.ref.origin = Vector3Add(sphere.ref.origin, preCollisionMovement);
+
 		Vector3 newPos = GetSphereNewPositionAndVelocityIfCollidingWithRoundedBox(
 			minInterPt,
 			minInterNormal,
 			ellapsedTime,
-			ellapsedTime * minT,
+			collisionT,
 			sphere,
 			phys);
 
@@ -136,6 +141,8 @@ void UpdatePositionByPhysics(const std::vector<Box>& boxes, float ellapsedTime, 
 	sphere.ref.RotateByQuaternion(QuaternionFromAxisAngle(
 		Vector3Normalize(phys.momentum), phys.inertia * powf(phys.angularSpeed, 2))
 	);
+	//Vector3 test = Vector3Normalize(phys.momentum);
+	//printf("%f, %f, %f %f\n", test.x, test.y, test.z, phys.inertia * powf(phys.angularSpeed, 2));
 	phys.travel.pt2 = sphere.ref.origin;
 }
  

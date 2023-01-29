@@ -158,7 +158,8 @@ int main(int argc, char* argv[])
 		QuaternionFromAxisAngle(Vector3Normalize({ 0,0,1 }), 0)
 	);
 	Sphere sphere = { ref, 1 };
-	Physics spherePhysics = InitPhysics(sphere, { 1, 1, 0 }, { 1, 0, 0 }, 10, PI / 128, 100);
+	Vector3 testSpeed = { (float)(rand() % 100) / 100, (float)(rand() % 100) / 100, (float)(rand() % 100) / 100 };
+	Physics spherePhysics = InitPhysics(sphere, testSpeed, {1, 0, 0}, 15, PI / 128, 100);
 	std::vector<Box> boxes = {};
 	
 	ref.origin = {0,-0.5,0};
@@ -228,8 +229,6 @@ int main(int argc, char* argv[])
 
 			if(deltaTime > 0)
 				UpdatePositionByPhysics(boxes, deltaTime, sphere, spherePhysics);
-
-			printf("%f %f %f\n", sphere.ref.origin.x, sphere.ref.origin.y, sphere.ref.origin.z);
 
 			MyDrawSphere(sphere, 40, 40, true, true, RED);
 
