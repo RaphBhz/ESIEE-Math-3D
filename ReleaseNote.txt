@@ -4,8 +4,12 @@ Le projet de la matière mathématique pour la 3D consiste en la réalisation d'
 
 → le chemin relatif d'accès au fichier
 
-→ vos remarques particulières : limitation, bugs connu, voies d'amélioration
+→ vos remarques particulières : limitations, bugs connus, voies d'améliorations
 De manière générale, ce projet fut très intéressant pour apprendre les bases de la création 3D de manière virtuelle. En effet, ce dernier nous a permis de nous poser des questions sur notre environnement et comment ceux qui composent notre environnement interagissent. De manière générale, ce projet fut très intéressant pour apprendre les bases de la création 3D de manière virtuelle.
+
+Parmi les bugs connus et que nous avons rencontré, nous pouvons citer les rotations par rapport aux référentiels locaux lors du dessin des formes. En effet, la rotation ne s'applique pas de manière uniforme à toutes les parties.
+Nous pouvons prendre en exemple une rotation de 90 degrés sur une roundedBox. Il aurait été préférable que tous, les éléments composent la roundedBox tournent dans le bon sens, afin que la roundedBox ne soit pas déformé.
+De manière générale, nous pouvons aussi citer la factorisation du code. En effet, nous aurions aimé pouvoir faire des fonctions beaucoup plus concises.
 
 
 → Qui à fait quoi sur le projet ?
