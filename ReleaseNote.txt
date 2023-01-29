@@ -1,0 +1,30 @@
+Le projet de la matière mathématique pour la 3D consiste en la réalisation d'une scène en 3D d'une balle qui tombe dans un "bac" rempli de box. Il met en œuvre des principes fondamentaux de la 3D, mais aussi des principes plus complexes tel que le phénomène de rebond. Le projet a été réalisé durant le cadre des séances "pers" mais aussi lors des séances de travaux dirigés et de travaux pratiques.
+
+→ le chemin relatif d'accès au fichier
+./projects/VS2019/raylib.sln
+
+
+→ Vos remarques particulières : limitations, bugs connus, voies d'améliorations
+De manière générale, ce projet fut très intéressant pour apprendre les bases de la création 3D de manière virtuelle. En effet, ce dernier nous a permis de nous poser des questions sur notre environnement et comment les éléments qui le composent interagissent. Cependant, dans certain cas, nous nous sommes senti limité par nos connaissances, une très bonne base en géométrie dans l'espace ainsi qu'en mécanique physique n'aurait pas été de trop.
+Aussi, il est bon à savoir que nous n'avons pas suivi à la lettre certains énoncé de TD. En effet, dans le TD3, nous avons pris certaines libertés de sorte à rendre un projet fonctionnel, mais ne suivant pas le prototype donné par l'énoncé.
+
+Parmi les bugs connus et que nous avons rencontré, nous pouvons citer les rotations par rapport aux référentiels locaux lors du dessin des formes. En effet, la rotation ne s'applique pas de manière uniforme à toutes les parties.
+Nous pouvons prendre en exemple une rotation de 90 degrés sur une roundedBox. Il aurait été préférable que tous les éléments qui composent la roundedBox tournent dans le bon sens, afin que la roundedBox ne soit pas déformé.
+De manière générale, nous pouvons aussi citer la factorisation du code. En effet, nous aurions aimé pouvoir faire des fonctions beaucoup plus concises.
+
+Le principal axe d'amélioration serai le fait de rendre notre code plus propre. En effet, avec plus de temps ou une meilleure répartition de ce dernier, nous aurions sans doute pu rendre le code plus maintenable par l'intermédiaire de la suppression de ligne répété. Un autre axe d'amélioration plus esthétique aurait été de réaliser une déformation au niveau de la balle afin que cette dernière fasse un rebond plus réaliste sur la surface désiré.
+
+
+→ Qui a fait quoi sur le projet ?
+Raphaël : 
+- Réalisation de la physique de la scène
+- Réalisation de la sphère, rounded box, quad, capsule
+- Réalisation des intersections : segment↔sphère, segment↔capsule, segment↔infiniteCylinder, segment↔quad, segment↔plane, segment↔roundedBox, line↔plane 
+
+Mathieu : 
+- création de la box
+- création du cylindre infini
+- création du disque
+- Réalisation de l'intersection segment↔disque
+- Réalisation de l'intersection segment↔box
+- Réalisation du ReleaseNote.txt
